@@ -1,14 +1,23 @@
 import random
-
+import numpy as np
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import Adam
+from collections import deque
 from Interceptor_V2 import Init, Draw, Game_step
-
+"""
 Init()
+max_r = 0
 for stp in range(1000):
-    action_button = random.randint(0, 3)
+    action_button = 1# srandom.randint(0, 3)
     r_locs, i_locs, c_locs, ang, score = Game_step(action_button)
-    if stp%20==0:
-        Draw()
-
+    r = len(r_locs)
+    if r>max_r:
+        max_r = r
+print(max_r)
+    #if stp%5000==0:
+     #   Draw=
+"""
 
 # Deep Q-learning `Agent
 class DQNAgent:
@@ -33,8 +42,8 @@ class DQNAgent:
                       optimizer=Adam(lr=self.learning_rate))
         return model
 
-    def memorize(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
+    def memorize(self, state, action, reward, next_state):
+        self.memory.append((state, action, reward, next_state))
 
     def act(self, state):
         if np.random.rand() <= self.epsilon:
@@ -44,11 +53,9 @@ class DQNAgent:
 
     def replay(self, batch_size):
         minibatch = random.sample(self.memory, batch_size)
-        for state, action, reward, next_state, done in minibatch:
-            target = reward
-            if not done:
-              target = reward + self.gamma * \
-                       np.amax(self.model.predict(next_state)[0])
+        for state, action, reward, next_state in minibatch:
+            target = reward + self.gamma *\
+                     np.amax(self.model.predict(next_state)[0])
             target_f = self.model.predict(state)
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
@@ -56,48 +63,50 @@ class DQNAgent:
             self.epsilon *= self.epsilon_decay
 
 
-
-
-# initialize gym environment and the agent
+episodes = 500
+batch_size = 32
 Init()
-agent = DQNAgent()
+agent = DQNAgent(state_size=4, action_size=4)
 
 # Iterate the game
 for e in range(episodes):
 
-# reset state in the beginning of each game
-state = env.reset()
-state = np.reshape(state, [1, 4])
+    # reset state in the beginning of each game
+    Init()
+    r_locs, i_locs, c_locs, ang, score = Game_step(1)
+    state = [r_locs.flaten(), np.zeros((1,140-2*len(r_locs))),i_locs.flaten(), np.zeros((1,140-2*len(r_locs))), c_locs.flaten(), ang]
+    # time_t represents each frame of the game
+    # Our goal is to keep the pole upright as long as possible until score of 500
+    # the more time_t the more score
+    for time_t in range(1000):
+        #if e%50==0 and time_t%20==0:
+        #   Draw()
+        # turn this on if you want to render
+        # env.render()
 
-# time_t represents each frame of the game
-# Our goal is to keep the pole upright as long as possible until score of 500
-# the more time_t the more score
-for time_t in range(500):
-    # turn this on if you want to render
-    # env.render()
+        # Decide action
+        action = agent.act(state)
 
-    # Decide action
-    action = agent.act(state)
+        # Advance the game to the next frame based on the action.
+        # Reward is 1 for every frame the pole survived
+        r_locs, i_locs, c_locs, ang, new_score = Game_step(action)
+        next_state = r_locs, i_locs, c_locs, ang
+        reward = new_score - score
+        score = new_score
+        next_state = np.reshape(next_state, [1, 4])
 
-    # Advance the game to the next frame based on the action.
-    # Reward is 1 for every frame the pole survived
-    next_state, reward, done, _ = env.step(action)
-    next_state = np.reshape(next_state, [1, 4])
+        # memorize the previous state, action, reward, and done
+        agent.memorize(state, action, reward, next_state)
 
-    # memorize the previous state, action, reward, and done
-    agent.memorize(state, action, reward, next_state, done)
+        # make next_state the new current state for the next frame.
+        state = next_state
 
-    # make next_state the new current state for the next frame.
-    state = next_state
 
-    # done becomes True when the game ends
-    # ex) The agent drops the pole
-    if done:
         # print the score and break out of the loop
         print("episode: {}/{}, score: {}"
-              .format(e, episodes, time_t))
+              .format(e, episodes, score))
 
-        break
 
-# train the agent with the experience of the episode
-agent.replay(32)
+    # train the agent with the experience of the episode
+    if len(agent.memory) > batch_size:
+       agent.replay(batch_size)
