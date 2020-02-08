@@ -1,10 +1,10 @@
-import torch
+import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.autograd as autograd
 
 import numpy as np
-import gym
+from IronDomeEnv import IronDomeEnv
 import random
 from collections import deque
 
@@ -198,11 +198,11 @@ class DQNAgent:
         self.optimizer2.step()
 
 
-env_id = "CartPole-v0"
+
 MAX_EPISODES = 1000
 MAX_STEPS = 500
 BATCH_SIZE = 32
 
-env = gym.make(env_id)
+env = IronDomeEnv(env_id)
 agent = DQNAgent(env, use_conv=False)
 episode_rewards = mini_batch_train(env, agent, MAX_EPISODES, MAX_STEPS, BATCH_SIZE)
