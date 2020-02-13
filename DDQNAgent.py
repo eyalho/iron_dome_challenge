@@ -176,8 +176,11 @@ class DQNAgent:
             torch.max(self.model1.forward(next_states), 2)[0],
             torch.max(self.model2.forward(next_states), 2)[0]
         )
-        next_Q = next_Q.view(next_Q.size(0), 1)
-        expected_Q = rewards + (1 - dones) * self.gamma * next_Q
+
+        next_Q = next_Q.view(next_Q.size(0), 1, 1)
+        rewards = rewards.view(rewards.size(0), 1, 1)
+        expected_Q = torch.addcmul(rewards, (1 - dones), next_Q, value=self.gamma)
+        # expected_Q = rewards + (1 - dones) * self.gamma * next_Q
 
         loss1 = F.mse_loss(curr_Q1, expected_Q.detach())
         loss2 = F.mse_loss(curr_Q2, expected_Q.detach())
