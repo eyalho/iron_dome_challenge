@@ -1,7 +1,7 @@
 # iron_dome_challenge
 [Official challenge](http://portal.rafael.co.il/mlchallenge2019/Documents/index.html)
 
-Refael posted an simplified simulation of Iron Dom:
+Refael posted a simplified simulation of Iron Dom:
 - Enemy’s missiles are shoot toward the city
 - Iron Dom shoots interceptors in order to destroy the the missiles before they hit
 the city.
