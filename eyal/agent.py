@@ -2,9 +2,9 @@
 import random
 from collections import deque
 
-from keras.models import Model
-from keras.layers import Dense, Input, LSTM, concatenate
 import numpy as np
+from keras.layers import Dense, Input, LSTM, concatenate
+from keras.models import Model
 
 
 class DQNAgent:
@@ -41,18 +41,24 @@ class DQNAgent:
         hidden_size = 20
 
         # Input Layer
-        r_locs_input_layer = Input(shape=(None, 2))  # Location of each rocket (x,y)
-        i_locs_input_layer = Input(shape=(None, 2))  # Location of each interceptor (x,y)
-        c_locs_input_layer = Input(shape=(None, 2))  # Location of each city
-        ang_input_layer = Input(shape=(1,))  # Turret angle
-        r_locs_lstm_layer = LSTM(hidden_size)(r_locs_input_layer)
-        i_locs_lstm_layer = LSTM(hidden_size)(i_locs_input_layer)
-        c_locs_lstm_layer = LSTM(hidden_size)(c_locs_input_layer)
-        layer = concatenate([r_locs_lstm_layer, i_locs_lstm_layer, c_locs_lstm_layer, ang_input_layer])
+        r_locs_input_layer = Input(shape=(None, 2))  # Location of each rocket np.array([[x,y],[x,y], ...])
+        i_locs_input_layer = Input(shape=(None, 2))  # Location of each interceptor np.array([[x,y],[x,y], ...])
+        c_locs_input_layer = Input(shape=(None, 2))  # Location of each city np.array([[x,y],[x,y], ...])
+        ang_input_layer = Input(shape=(1,))  # Turret angle (ang)
+        features_input_layer = Input(shape=(1,))  # time_t
+
+        # Add RNN with some memory to previous states
+        r_locs_lstm_layer = LSTM(hidden_size)(r_locs_input_layer)  # institution: find worst rocket
+        i_locs_lstm_layer = LSTM(hidden_size)(i_locs_input_layer)  # institution: find match interceptor
+        c_locs_lstm_layer = LSTM(hidden_size)(c_locs_input_layer)  # institution: no real need for lstm
+
+        layer = concatenate(
+            [r_locs_lstm_layer, i_locs_lstm_layer, c_locs_lstm_layer, ang_input_layer, features_input_layer])
         layer = Dense(hidden_size, activation='linear')(layer)
-        output_layer = Dense(self.action_size, activation='tanh')(layer)
-        model = Model(inputs=[r_locs_input_layer, i_locs_input_layer, c_locs_input_layer, ang_input_layer],
-                      outputs=output_layer)
+        output_layer = Dense(self.action_size, activation='linear')(layer)
+        model = Model(
+            inputs=[r_locs_input_layer, i_locs_input_layer, c_locs_input_layer, ang_input_layer, features_input_layer],
+            outputs=output_layer)
         model.compile(optimizer='adam', loss='mse')
         return model
 

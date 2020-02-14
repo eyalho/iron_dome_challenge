@@ -1,12 +1,13 @@
-import numpy as np
-from DQNAgent import DQNAgent
-from Interceptor_V2 import Init, Draw, Game_step
 import matplotlib as plt
+import numpy as np
+
+from DQNAgent import DQNAgent
+from eyal.const_Interceptor_V2 import Init, Draw, Game_step
 
 # run configurations
 episodes = 1000
 model_name = 'DQN 24x24'
-render = False
+render = True
 batch_size = 32
 
 # env and agent initialization

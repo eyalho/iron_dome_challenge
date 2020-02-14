@@ -1,10 +1,10 @@
 import random
-import numpy as np
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.optimizers import Adam
 from collections import deque
-from Interceptor_V2 import Init, Draw, Game_step
+
+import numpy as np
+from keras.layers import Dense
+from keras.models import Sequential
+from keras.optimizers import Adam
 
 
 # Deep Q-learning `Agent
@@ -28,6 +28,9 @@ class DQNAgent:
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
+        from keras.utils import plot_model
+        plot_model(model, to_file='model.png')
+
         return model
 
     def memorize(self, state, action, reward, next_state):
