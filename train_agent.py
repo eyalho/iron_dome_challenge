@@ -1,6 +1,7 @@
 import numpy as np
 from DQNAgent import DQNAgent
 from Interceptor_V2 import Init, Draw, Game_step
+import matplotlib as plt
 
 # run configurations
 episodes = 1000

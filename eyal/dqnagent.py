@@ -21,12 +21,31 @@ class DQNAgent:
         self.model = self._build_model()
 
     def _build_model(self):
+        """
+        original model was:
+        model = Sequential()
+        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
+        model.add(Dense(24, activation='relu'))
+        model.add(Dense(self.action_size, activation='linear'))
+        model.compile(loss='mse',
+                      optimizer=Adam(lr=self.learning_rate))
+        return model
+
+        We change it in order to fit our problem:
+        - 4 chanel input (r_locs, i_locs, c_locs, ang)
+        - Added LSTM for remembering older locs states
+        -
+        :return:
+        """
+
         # Neural Net for Deep-Q learning Model
         hidden_size = 20
-        r_locs_input_layer = Input(shape=(None, 2))
-        i_locs_input_layer = Input(shape=(None, 2))
-        c_locs_input_layer = Input(shape=(None, 2))
-        ang_input_layer = Input(shape=(1,))
+
+        # Input Layer
+        r_locs_input_layer = Input(shape=(None, 2))  # Location of each rocket (x,y)
+        i_locs_input_layer = Input(shape=(None, 2))  # Location of each interceptor (x,y)
+        c_locs_input_layer = Input(shape=(None, 2))  # Location of each city
+        ang_input_layer = Input(shape=(1,))  # Turret angle
         r_locs_lstm_layer = LSTM(hidden_size)(r_locs_input_layer)
         i_locs_lstm_layer = LSTM(hidden_size)(i_locs_input_layer)
         c_locs_lstm_layer = LSTM(hidden_size)(c_locs_input_layer)
@@ -38,7 +57,7 @@ class DQNAgent:
         model.compile(optimizer='adam', loss='mse')
         return model
 
-    def remember(self, state, action, reward, next_state, done):
+    def memorize(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
@@ -76,7 +95,7 @@ if __name__ == "__main__":
         for time_t in range(run_time):
             action = agent.act(state)
             r_locs, i_locs, c_locs, ang, score = Game_step(action)
-            if e%50 == 49:
+            if e % 50 == 49:
                 Draw()
             r_locs = np.concatenate([default_val, r_locs])
             i_locs = np.concatenate([default_val, i_locs])
@@ -84,4 +103,4 @@ if __name__ == "__main__":
             agent.remember(state, action, score, next_state, False)
             state = next_state
         agent.replay(min(time_t, 32))
-        print(f'episode: {e+1}/{episodes}, score: {score}')
+        print(f'episode: {e + 1}/{episodes}, score: {score}')
