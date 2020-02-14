@@ -26,7 +26,7 @@ if __name__ == "__main__":
             ang = 0
             normalized_t = 0
             state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
-                     np.array(normalized_t)]
+                     np.array([normalized_t])]
             for time_t in range(NUMBER_OF_FRAMES_IN_GAME):
                 normalized_t = time_t / NUMBER_OF_FRAMES_IN_GAME
                 action = agent.act(state)
