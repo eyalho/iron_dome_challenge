@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Sep  7 10:22:51 2019
 
-@author: Shay's Laptop
-"""
 from Interceptor_V2 import Init, Draw, Game_step
 from keras.models import Model
 from keras.layers import Dense, Input, LSTM, concatenate

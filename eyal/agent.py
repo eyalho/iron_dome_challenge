@@ -2,15 +2,14 @@
 import random
 from collections import deque
 
-from Interceptor_V2 import Init, Draw, Game_step
 from keras.models import Model
 from keras.layers import Dense, Input, LSTM, concatenate
 import numpy as np
 
 
 class DQNAgent:
-    def __init__(self, state_size=None, action_size=4):
-        self.state_size = state_size
+    def __init__(self, action_size=4):
+        # self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95  # discount rate
@@ -78,29 +77,3 @@ class DQNAgent:
             self.model.fit(state, np.array(target_f), epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
-
-
-if __name__ == "__main__":
-    episodes = 500
-    agent = DQNAgent()
-    run_time = 1000
-    default_val = np.array([[-1, -1]])
-    for e in range(episodes):
-        Init()
-        r_locs = default_val
-        i_locs = default_val
-        c_locs = default_val
-        ang = 0
-        state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang])]
-        for time_t in range(run_time):
-            action = agent.act(state)
-            r_locs, i_locs, c_locs, ang, score = Game_step(action)
-            if e % 50 == 49:
-                Draw()
-            r_locs = np.concatenate([default_val, r_locs])
-            i_locs = np.concatenate([default_val, i_locs])
-            next_state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang])]
-            agent.remember(state, action, score, next_state, False)
-            state = next_state
-        agent.replay(min(time_t, 32))
-        print(f'episode: {e + 1}/{episodes}, score: {score}')
