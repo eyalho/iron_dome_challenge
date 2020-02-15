@@ -1,11 +1,7 @@
+import env_for_training as env
 import simulate_Interceptor_V2 as sim_env
 from debug_logger import create_logger
-
-import Interceptor_V2 as env
-from Interceptor_V2 import Init, Draw, Game_step
-
-# from env_for_training import Init, Draw, Game_step
-# import env_for_training as env
+from env_for_training import Init, Draw, Game_step
 
 logger = create_logger("smart_player")
 debug = logger.debug
@@ -14,7 +10,7 @@ debug = logger.debug
 def choose_action(steps_to_sim):
     SHOOT = 3
     WAIT = 1
-    diff_score = predict_shoot_score(steps_to_sim)
+    diff_score = simulate_shoot_score(steps_to_sim)
     # if it worth shooting, shoot:
     if diff_score > 0:
         debug("shoot!")
@@ -25,11 +21,10 @@ def choose_action(steps_to_sim):
     return action_button
 
 
-def predict_shoot_score(steps_to_sim):
+def simulate_shoot_score(steps_to_sim):
     """
     :param steps_to_sim: how many step until end of game (1000-stp)
-    :param action_button: deserved action
-    :return: the score of the game
+    :return: predicted_shoot_score - predicted_wait_score
     """
     SHOOT = 3
     WAIT = 1
@@ -51,8 +46,9 @@ def predict_shoot_score(steps_to_sim):
         scores.append(score)
 
     shoot_score = scores[0] - scores[1]
-    if shoot_score != 0:
-        debug(f"steps_to_simulate = {steps_to_sim}\n diff={shoot_score}")
+    # debug
+    # if shoot_score != 0:
+    #     debug(f"steps_to_simulate = {steps_to_sim}\n diff={shoot_score}")
     return shoot_score
 
 

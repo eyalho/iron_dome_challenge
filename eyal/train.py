@@ -1,57 +1,51 @@
-import env_for_training as env
+import os
+import time
+
 import numpy as np
-import simulate_Interceptor_V2 as sim_env
+# import simulate_Interceptor_V2 as sim_env
 from agent import DQNAgent
 from debug_logger import create_logger
 from env_for_training import Init, Draw, Game_step
+from smart_player import simulate_shoot_score
 
 logger = create_logger("train")
 debug = logger.debug
 
 
-def eval_score(predicted_action, steps_to_sim):
+def eval_score(predicted_action, ang, score, steps_to_sim):
     """
     :param steps_to_sim: how many step until end of game (1000-stp)
     :param action_button: deserved action
     :return: the score of the game
     """
     SHOOT = 3
-    WAIT = 1
-    MAX_STEPS = 300
-    actions = [SHOOT, WAIT]
-    scores = []
-    steps_to_sim = min(steps_to_sim, MAX_STEPS)
-    for action_button in actions:
-        # init new simulate game
-        sim_env.Simulate(env.world, env.turret, env.rocket_list, env.interceptor_list, env.city_list,
-                         env.explosion_list)
-        # act
-        # if action_button == SHOOT: debug("try shoot")
-        # if action_button == WAIT: debug("try wait")
-        sim_env.Game_step(action_button)
+    ANGLE_SCORE_PUNISHMENT = 10000
 
-        # peace steps until end of game
-        for i in range(steps_to_sim):
-            _, _, _, _, score = sim_env.peace_step()
-        # last step : save score in end of peace game
-        scores.append(score)
-
-    shoot_score = scores[0]
-    wait_score = scores[1]
-    if shoot_score != wait_score:
-        debug(
-            f"steps_to_simulate = {steps_to_sim}\nshoot={shoot_score}, wait={wait_score} diff={shoot_score - wait_score}")
+    ############### SHOOT reward ###############
+    # We want the agent to shoot when he's going to gain score.
+    # But the score will be received in the far future.
+    # So we simulate next steps (with no other shooting) and calc
+    # how the score will be difference if he chose to shoot..
+    shoot_score = simulate_shoot_score(steps_to_sim)
     if predicted_action == SHOOT:
-        return shoot_score - wait_score
+        score += shoot_score
     else:
-        return wait_score - shoot_score
+        score -= shoot_score
+
+    ############### ANGLE reward ###############
+    # While playing we noticed that optimal angel should be
+    # between 12 to 72
+    if ang < 12 or score > 72:
+        score -= ANGLE_SCORE_PUNISHMENT
+
+    return score
 
 
 if __name__ == "__main__":
     NUMBER_OF_GAMES = 2
     NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
     BATCH_SIZE = int(NUMBER_OF_STEPS_IN_GAME / 2)
-    render = True
+    render = False
     agent = DQNAgent()
     scores = []
 
@@ -80,7 +74,7 @@ if __name__ == "__main__":
                           np.array([normalized_t])]
             is_done = stp == NUMBER_OF_STEPS_IN_GAME
 
-            score = eval_score(action, stp_left)
+            score = eval_score(action, ang, score, stp_left)
             agent.memorize(state, action, score, next_state, is_done)
 
             state = next_state
@@ -93,5 +87,14 @@ if __name__ == "__main__":
 
         # TODO figure out about right way to use replay
         agent.replay(BATCH_SIZE)
+
         debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}')
         scores.append(score)
+
+        if e % 50 == 0:
+            directory = "models"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            file_path = os.path.join(directory, f"{agent.model.name}_e{e}_{time.strftime('%Y%m%d-%H%M%S')}.hdf5")
+            agent.model.save(file_path)
+            debug("Saved model to disk")

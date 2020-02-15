@@ -41,11 +41,13 @@ class DQNAgent:
         hidden_size = 20
 
         # Input Layer
-        r_locs_input_layer = Input(shape=(None, 2))  # Location of each rocket np.array([[x,y],[x,y], ...])
-        i_locs_input_layer = Input(shape=(None, 2))  # Location of each interceptor np.array([[x,y],[x,y], ...])
-        c_locs_input_layer = Input(shape=(None, 2))  # Location of each city np.array([[x,y],[x,y], ...])
-        ang_input_layer = Input(shape=(1,))  # Turret angle (ang)
-        features_input_layer = Input(shape=(1,))  # time_t
+        r_locs_input_layer = Input(shape=(None, 2),
+                                   name="rockets")  # Location of each rocket np.array([[x,y],[x,y], ...])
+        i_locs_input_layer = Input(shape=(None, 2),
+                                   name="interceptor")  # Location of each interceptor np.array([[x,y],[x,y], ...])
+        c_locs_input_layer = Input(shape=(None, 2), name="cities")  # Location of each city np.array([[x,y],[x,y], ...])
+        ang_input_layer = Input(shape=(1,), name="angle")  # Turret angle (ang)
+        features_input_layer = Input(shape=(1,), name="other_features")  # time_t
 
         # Add RNN with some memory to previous states
         r_locs_lstm_layer = LSTM(hidden_size)(r_locs_input_layer)  # institution: find worst rocket
@@ -58,8 +60,10 @@ class DQNAgent:
         output_layer = Dense(self.action_size, activation='linear')(layer)
         model = Model(
             inputs=[r_locs_input_layer, i_locs_input_layer, c_locs_input_layer, ang_input_layer, features_input_layer],
-            outputs=output_layer)
+            outputs=output_layer, name="model")
         model.compile(optimizer='adam', loss='mse')
+        # from keras.utils import plot_model
+        # plot_model(model, to_file='model.png')
         return model
 
     def memorize(self, state, action, reward, next_state, done):

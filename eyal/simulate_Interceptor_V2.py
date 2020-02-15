@@ -222,10 +222,10 @@ def Simulate(world, turret, rocket_list, interceptor_list, city_list, explosion_
 
     # For debug purpose
     s_world.score = 0  # float(s_world.score)
-    s_world.reward_city = 0  # float(s_world.reward_city) + 0.01
-    s_world.reward_open = 0  # float(s_world.reward_open) + 0.001
-    s_world.reward_fire = -10  # float(s_world.reward_fire) + 0.0001
-    s_world.reward_intercept = 100  # float(s_world.reward_intercept) + 0.00001
+    # s_world.reward_city = 0  # float(s_world.reward_city) + 0.01
+    # s_world.reward_open = 0  # float(s_world.reward_open) + 0.001
+    # s_world.reward_fire = -10  # float(s_world.reward_fire) + 0.0001
+    # s_world.reward_intercept = 100  # float(s_world.reward_intercept) + 0.00001
 
     s_turret = STurret(copy.deepcopy(turret))
     s_rocket_list = [SRocket(rocket) for rocket in copy.deepcopy(rocket_list)]

@@ -10,33 +10,33 @@ This ML challenge was created by SAMLA (National Electronic Warfare, Cyber & Int
 The goal of the game:
     Getting highest score in 100 games each running for 1000 steps.
     The player have access to 3 functions:
-        
+
         Init(): This function initializes the game. It should be called before each game.
-        
+
         Game_step(action_button): This function performs an action as described:
             action_button = 0: Change turret angle one step left
             action_button = 1: Do nothing in the current game step
             action_button = 2: Change turret angle one step right
             action_button = 3: Fire
-            
+
             This function returns several variables:
                 r_locs: Location of each rocket in the game (x,y)
                 i_locs: Location of each interceptor in the game (x,y)
                 c_locs: Location of each city in the game (x, width)
                 ang: Turret angle
                 score: Current player score
-            
+
         Draw(): This function displays current game state (slows down your program. Not a must)
-        
-    Score is as follows: 
+
+    Score is as follows:
         Rocket hits city: -15 points
         Rocket hits open field: -1 point
         Firing an interceptor: -1 point
         Intercepting a rocket: +4 points
-        
+
 In order to play, do the following:
 ***********************************
-    
+
 from Interceptor_V2 import Init, Draw, Game_step
 
 Init()
@@ -61,9 +61,9 @@ class World():
     time = 0  # [sec]
     score = 0
     reward_city = -15
-    reward_open = -1
-    reward_fire = -1
-    reward_intercept = 4
+    reward_open = -3
+    reward_fire = -2
+    reward_intercept = 40
     g = 9.8  # Gravity [m/sec**2]
     fric = 5e-7  # Air friction [Units of Science]
     rocket_prob = 1  # expected rockets per sec
@@ -102,6 +102,11 @@ class Turret():
 class Interceptor():
     def __init__(self):
         self.x = turret.x
+        self.y = turret.y
+        self.vx = turret.v0 * np.sin(np.deg2rad(turret.ang))
+        self.vy = turret.v0 * np.cos(np.deg2rad(turret.ang))
+        world.score = world.score + world.reward_fire
+        interceptor_list.append(self)
 
     def update(self):
         self.v_loss = (self.vx ** 2 + self.vy ** 2) * world.fric * world.dt
@@ -115,19 +120,13 @@ class Interceptor():
         if np.abs(self.x) > world.width / 2:
             interceptor_list.remove(self)
 
-        self.y = turret.y
-        self.vx = turret.v0 * np.sin(np.deg2rad(turret.ang))
-        self.vy = turret.v0 * np.cos(np.deg2rad(turret.ang))
-        world.score = world.score + world.reward_fire
-        interceptor_list.append(self)
+
 class Rocket():
     def __init__(self, world):
         self.x = turret.x_hostile  # [m]
         self.y = turret.y_hostile  # [m]
-        # self.v0 = 700 + np.random.rand() * 300 # [m/sec]
-        self.v0 = 800  # MAKE CONST
-        # self.ang = -88 + np.random.rand() * 68 # [deg]
-        self.ang = -40  # MAKE CONST
+        self.v0 = 700 + 0.5 * 300  # [m/sec]
+        self.ang = -88 + 0.5 * 68  # [deg]
         self.vx = self.v0 * np.sin(np.deg2rad(self.ang))
         self.vy = self.v0 * np.cos(np.deg2rad(self.ang))
         rocket_list.append(self)
@@ -244,9 +243,10 @@ def Init():
 
 def Game_step(action_button):
     world.time = world.time + world.dt
-
+    #
     if np.random.rand() < world.rocket_prob * world.dt:
         Rocket(world)
+    # world.rocket_prob = 0.01
 
     for r in rocket_list:
         r.update()
