@@ -224,7 +224,7 @@ def Draw():
     plt.axis([-world.width / 2, world.width / 2, 0, world.height])
     plt.title('Score: ' + str(world.score))
     plt.draw()
-    plt.pause(0.001)
+    plt.pause(0.0001)
         
 
 def Init():

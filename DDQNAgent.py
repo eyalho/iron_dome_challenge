@@ -163,22 +163,22 @@ class DQNAgent:
         dones = torch.FloatTensor(dones)
 
         # resize tensors
-        actions = actions.view(actions.size(0), 1,1)
-        dones = dones.view(dones.size(0), 1, 1)
+        actions = actions.view(actions.size(0), 1)
+        dones = dones.view(dones.size(0),  1)
 
         # compute loss
-        curr_Q1 = self.model1.forward(states).gather(2, actions)
-        curr_Q2 = self.model2.forward(states).gather(2, actions)
+        curr_Q1 = self.model1.forward(states).gather(1, actions)
+        curr_Q2 = self.model2.forward(states).gather(1, actions)
 
         next_Q1 = self.model1.forward(next_states)
         next_Q2 = self.model2.forward(next_states)
         next_Q = torch.min(
-            torch.max(self.model1.forward(next_states), 2)[0],
-            torch.max(self.model2.forward(next_states), 2)[0]
+            torch.max(self.model1.forward(next_states), 1)[0],
+            torch.max(self.model2.forward(next_states), 1)[0]
         )
 
-        next_Q = next_Q.view(next_Q.size(0), 1, 1)
-        rewards = rewards.view(rewards.size(0), 1, 1)
+        next_Q = next_Q.view(next_Q.size(0),  1)
+        rewards = rewards.view(rewards.size(0),  1)
         expected_Q = torch.addcmul(rewards, (1 - dones), next_Q, value=self.gamma)
         # expected_Q = rewards + (1 - dones) * self.gamma * next_Q
 

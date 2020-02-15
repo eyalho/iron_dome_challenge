@@ -1,17 +1,17 @@
-import gym
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from sklearn.utils import shuffle
 from scipy.stats import zscore
 from tensorflow.python.framework.ops import disable_eager_execution
+from IronDomeEnv import IronDomeEnv
 
 disable_eager_execution()
 
-env = interce
+env = IronDomeEnv()
 
 
-end_game_reward = -100
+end_game_reward = 0
 
 class PolicyGradient:
     def __init__(self, state_size, num_of_actions, hidden_layers, learning_rate):
@@ -85,5 +85,20 @@ for g in range(1500):
                                                         pg.acc_r: discounted_acc_rewards,
                                                         pg.actions: actions})
 
-    print_stuff('Cost: {}\n----------'.format(c))
+    print_stuff('score: {}\n----------'.format(env.score))
     data = data.append({'game': game, 'steps': steps, 'cost': c}, ignore_index=True)
+
+    if not g%100:
+        env.reset()
+        env.render()
+        state = env.state
+        steps = 0
+        game_over = False
+        while not game_over:
+            steps += 1
+            probs = sess.run(pg.action_prob, feed_dict={pg.states: np.expand_dims(state, axis=0)}).flatten()
+            action = np.argmax(probs)
+            state, _, game_over, _ = env.step(action)
+            env.render()
+        end_reason = 'maximum possible steps' if steps == env._max_episode_steps else 'dropped pole or left frame'
+        print("Game ended after {} steps ({})".format(steps, end_reason))

@@ -12,21 +12,23 @@ class IronDomeEnv(gym.Env):
     # They must be gym.spaces objects
     # Example when using discrete actions:
     self.action_space = spaces.Discrete(4)
+    self._max_episode_steps = 1000
     # Example for using image as input:
     self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(285,1), dtype=np.uint32)
-    self.reset()
+    self.state = self.reset()
+
 
   def step(self, action):
 
       r_locs, i_locs, c_locs, ang, score = Game_step(action)
       next_state = np.concatenate([r_locs.flatten(), np.zeros((1, 140 - 2 * np.shape(r_locs)[0])), i_locs.flatten(),
                                    np.zeros((1, 140 - 2 * np.shape(i_locs)[0])), c_locs.flatten(), ang], axis=None)
-      next_state = np.reshape(next_state, [1, 285])
+      next_state = np.reshape(next_state, [285])
       self.reward = score - self.score
       self.score = score
       self.t +=1
       done = False
-      if self.t==1000:
+      if self.t==self._max_episode_steps:
           done=True
       return next_state, self.reward, done, {}
 
