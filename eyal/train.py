@@ -3,7 +3,7 @@ import numpy as np
 from agent import DQNAgent
 from debug_logger import create_logger
 
-from Interceptor_V2 import Init, Draw, Game_step
+from train_env import Init, Draw, Game_step
 
 
 def calc_fancy_reward():
