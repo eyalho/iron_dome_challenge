@@ -42,8 +42,8 @@ def eval_score(predicted_action, ang, score, steps_to_sim):
 
 
 if __name__ == "__main__":
-    NUMBER_OF_GAMES = 11
-    NUMBER_OF_STEPS_IN_GAME = 300  # total frames in a game
+    NUMBER_OF_GAMES = 50000
+    NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
     BATCH_SIZE = int(NUMBER_OF_STEPS_IN_GAME / 2)
     render = False
     agent = DQNAgent()
@@ -90,6 +90,8 @@ if __name__ == "__main__":
 
         debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}')
         scores.append(score)
+        with open("score.txt", "w") as f:
+            f.write(str(scores))
 
         if e % 50 == 0:
             directory = "models"
