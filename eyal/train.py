@@ -1,10 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from agent import DQNAgent
+from debug_logger import create_logger
 
 from Interceptor_V2 import Init, Draw, Game_step
 
+
+def calc_fancy_reward():
+    pass
+
+
 if __name__ == "__main__":
+    logger = create_logger("train")
+    debug = logger.debug
     NUMBER_OF_GAMES = 500
     NUMBER_OF_FRAMES_IN_GAME = 1000  # total frames in a game
     BATCH_SIZE = int(NUMBER_OF_FRAMES_IN_GAME / 10)
@@ -12,9 +20,7 @@ if __name__ == "__main__":
     agent = DQNAgent()
     scores = []
 
-    with open("score.txt", "a") as f:
-        f.write(f"start train of {NUMBER_OF_GAMES} episodes, with batch size {BATCH_SIZE}\n")
-
+    debug(f"start train of {NUMBER_OF_GAMES} episodes, with batch size {BATCH_SIZE}\n")
     default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
     # just for the case where there are no r_locs/i_locs
     try:
@@ -48,10 +54,7 @@ if __name__ == "__main__":
 
             # TODO figure out about right way to use replay
             agent.replay(BATCH_SIZE)
-
-            with open("score.txt", "a") as f:
-                f.write(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}\n')
-            print(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}')
+            debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}')
             scores.append(score)
     except KeyboardInterrupt:
         plt.plot(scores)
