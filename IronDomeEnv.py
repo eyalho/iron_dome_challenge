@@ -14,31 +14,59 @@ class IronDomeEnv(gym.Env):
     self.action_space = spaces.Discrete(4)
     self._max_episode_steps = 1000
     self.ang = 0
+    self.dx = 1000
+    self.dy = 1000
     # Example for using image as input:
-    self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(805,1), dtype=np.uint32)
+    self.observation_space = spaces.Box(low=0, high=np.inf, shape=(105,1), dtype=np.uint32)
     self.state = self.reset()
+
 
   def step(self, action):
 
       new_r_locs, new_i_locs, c_locs, self.ang, score = Game_step(action)
 
       # padding
-      last_r_locs_padded = np.concatenate((self.last_r_locs.flatten(), np.zeros((200 - 2 * np.shape(self.last_r_locs)[0]))))
-      last_i_locs_padded = np.concatenate((self.last_i_locs.flatten(), np.zeros(( 200 - 2 * np.shape(self.last_i_locs)[0]))))
-      new_r_locs_padded = np.concatenate((new_r_locs.flatten(), np.zeros((200 - 2 * np.shape(new_r_locs)[0]))))
-      new_i_locs_padded = np.concatenate((new_i_locs.flatten(), np.zeros((200 - 2 * np.shape(new_i_locs)[0]))))
+      #ast_r_locs_padded = np.concatenate((self.last_r_locs.flatten(), np.zeros((200 - 2 * np.shape(self.last_r_locs)[0]))))
+      #last_i_locs_padded = np.concatenate((self.last_i_locs.flatten(), np.zeros(( 200 - 2 * np.shape(self.last_i_locs)[0]))))
+      #new_r_locs_padded = np.concatenate((new_r_locs.flatten(), np.zeros((200 - 2 * np.shape(new_r_locs)[0]))))
+      #new_i_locs_padded = np.concatenate((new_i_locs.flatten(), np.zeros((200 - 2 * np.shape(new_i_locs)[0]))))
+
+      x_grid = np.array(list(range(-5000,5000, self.dx)))
+      y_grid = np.array(list(range(0, 5000, self.dy)))
+
+      r_patches = np.zeros(len(x_grid)*len(y_grid))
+      for i in range(len(new_r_locs)):
+          x = new_r_locs[i, 0]
+          y = new_r_locs[i, 1]
+          x_loc = np.where(np.equal(x_grid>=x, x_grid+self.dx>=x)==False)
+          y_loc = np.where(np.equal(y_grid >= y, y_grid + self.dy >= y) == False)
+          r_patches[x_loc + y_loc*(len(x_grid+1))]+=1
+
+      i_patches = np.zeros(len(x_grid) * len(y_grid))
+      for i in range(len(new_i_locs)):
+          x = new_i_locs[i, 0]
+          y = new_i_locs[i, 1]
+          x_loc = np.where(np.equal(x_grid >= x, x_grid + self.dx >= x) == False)
+          y_loc = np.where(np.equal(y_grid >= y, y_grid + self.dy >= y) == False)
+          i_patches[x_loc + y_loc * (len(x_grid + 1))] += 1
 
 
-      r_vels_padded = new_r_locs_padded - last_r_locs_padded
-      i_vels_padded = new_i_locs_padded - last_i_locs_padded
+
+      next_state = np.concatenate((r_patches, i_patches, c_locs.flatten(),np.array([self.ang])))
+
+
+
+      #r_vels_padded = new_r_locs_padded - last_r_locs_padded
+      #i_vels_padded = new_i_locs_padded - last_i_locs_padded
 
       #next_state = np.concatenate((new_r_locs_padded, new_i_locs_padded, c_locs.flatten(), self.ang), axis=None)
-      next_state = np.concatenate((r_vels_padded, new_r_locs_padded, i_vels_padded, new_i_locs_padded, c_locs.flatten(), self.ang), axis=None)
+      #next_state = np.concatenate((r_vels_padded, new_r_locs_padded, i_vels_padded, new_i_locs_padded, c_locs.flatten(), self.ang), axis=None)
 
-      self.last_r_locs = new_r_locs
-      self.last_i_locs = new_i_locs
+      #self.last_r_locs = new_r_locs
+      #self.last_i_locs = new_i_locs
       self.reward = score - self.score
       self.score = score
+      self.state = next_state
       self.t +=1
       done = False
       if self.t==self._max_episode_steps:

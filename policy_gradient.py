@@ -100,6 +100,7 @@ for g in range(1500):
             probs = sess.run(pg.action_prob, feed_dict={pg.states: np.expand_dims(state, axis=0)}).flatten()
             action = np.argmax(probs)
             print(probs)
+            print(env.state)
             print(env.ang)
             print(action)
             state, _, game_over, _ = env.step(action)
