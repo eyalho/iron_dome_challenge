@@ -34,8 +34,8 @@ class DQNAgent:
             inputs=[ang_input_layer, sim_score_input_layer, time_input_layer],
             outputs=output_layer, name="model_simple")
         model.compile(optimizer='adam', loss='mse')
-        from keras.utils import plot_model
-        plot_model(model, to_file=model.name)
+        # from keras.utils import plot_model
+        # plot_model(model, to_file=model.name)
         return model
 
     def memorize(self, state, action, reward, next_state, done):
