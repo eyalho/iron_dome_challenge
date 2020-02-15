@@ -50,14 +50,15 @@ for stp in range(1000):
 Don't forget to play by the rules described in the website.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 class World():
-    width = 10000 # [m]
-    height = 4000 # [m]
-    dt = 0.2 # [sec]
-    time = 0 # [sec]
+    width = 10000  # [m]
+    height = 4000  # [m]
+    dt = 0.2  # [sec]
+    time = 0  # [sec]
     score = 0
     reward_city = -15
     reward_open = -1
@@ -241,6 +242,7 @@ def Init():
    
     
 def Game_step(action_button):
+    print(f"action_buton={action_button}")
     world.time = world.time + world.dt
     
     if np.random.rand() < world.rocket_prob * world.dt:

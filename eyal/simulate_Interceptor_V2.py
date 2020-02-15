@@ -12,32 +12,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-class World():
-    width = 10000  # [m]
-    height = 4000  # [m]
-    dt = 0.2  # [sec]
-    time = 0  # [sec]
-    score = 0
-    reward_city = -15
-    reward_open = -1
-    reward_fire = -1
-    reward_intercept = 4
-    g = 9.8  # Gravity [m/sec**2]
-    fric = 5e-7  # Air friction [Units of Science]
-    rocket_prob = 1  # expected rockets per sec
-
-
-class Turret():
-    x = -2000  # [m]
-    y = 0  # [m]
-    x_hostile = 4800
-    y_hostile = 0
-    ang_vel = 30  # Turret angular speed [deg/sec]
-    ang = 0  # Turret angle [deg]
-    v0 = 800  # Initial speed [m/sec]
-    prox_radius = 150  # detonation proximity radius [m]
-    reload_time = 1.5  # [sec]
-    last_shot_time = -3  # [sec]
+class STurret():
+    def __init__(self, turrent):
+        self.x = turrent.x
+        self.y = turrent.y  # 0  # [m]
+        self.x_hostile = turrent.x_hostile  # 4800
+        self.y_hostile = turrent.y_hostile  # 0
+        self.ang_vel = turrent.ang_vel  # 30  # Turret angular speed [deg/sec]
+        self.ang = turrent.ang  # 0  # Turret angle [deg]
+        self.v0 = turrent.v0  # 800  # Initial speed [m/sec]
+        self.prox_radius = turrent.prox_radius  # 150  # detonation proximity radius [m]
+        self.reload_time = turrent.reload_time  # 1.5  # [sec]
+        self.last_shot_time = turrent.last_shot_time  # -3  # [sec]
 
     def update(self, action_button):
         if action_button == 0:
@@ -78,14 +64,13 @@ class Interceptor():
         if np.abs(self.x) > s_world.width / 2:
             s_interceptor_list.remove(self)
 
-
 class SInterceptor():
-    def __init__(self, interceptor: Interceptor):
+    def __init__(self, interceptor):
         self.x = interceptor.x
         self.y = interceptor.y
         self.vx = interceptor.vx
         self.vy = interceptor.vy
-        s_world.score = s_world.score + s_world.reward_fire
+        # s_world.score = s_world.score + s_world.reward_fire
         s_interceptor_list.append(self)
 
     def update(self):
@@ -101,26 +86,8 @@ class SInterceptor():
             s_interceptor_list.remove(self)
 
 
-class Rocket():
-    def __init__(self, s_world):
-        self.x = s_turret.x_hostile  # [m]
-        self.y = s_turret.y_hostile  # [m]
-        self.v0 = 700 + np.random.rand() * 300  # [m/sec]
-        self.ang = -88 + np.random.rand() * 68  # [deg]
-        self.vx = self.v0 * np.sin(np.deg2rad(self.ang))
-        self.vy = self.v0 * np.cos(np.deg2rad(self.ang))
-        s_rocket_list.append(self)
-
-    def update(self):
-        self.v_loss = (self.vx ** 2 + self.vy ** 2) * s_world.fric * s_world.dt
-        self.vx = self.vx * (1 - self.v_loss)
-        self.vy = self.vy * (1 - self.v_loss) - s_world.g * s_world.dt
-        self.x = self.x + self.vx * s_world.dt
-        self.y = self.y + self.vy * s_world.dt
-
-
 class SRocket():
-    def __init__(self, rocket: Rocket):
+    def __init__(self, rocket):
         self.x = rocket.x  # [m]
         self.y = rocket.y  # [m]
         self.v0 = rocket.v0  # [m/sec]
@@ -137,32 +104,18 @@ class SRocket():
         self.y = self.y + self.vy * s_world.dt
 
 
-class City():
-    def __init__(self, x1, x2, width):
-        self.x = np.random.randint(x1, x2)  # [m]
-        self.width = width  # [m]
-        s_city_list.append(self)
-        self.img = np.zeros((200, 800))
-        for b in range(60):
-            h = np.random.randint(30, 180)
-            w = np.random.randint(30, 80)
-            x = np.random.randint(1, 700)
-            self.img[0:h, x:x + w] = np.random.rand()
-        self.img = np.flipud(self.img)
-
-
 class SCity():
-    def __init__(self, city: City):
+    def __init__(self, city):
         self.x = city.x
         self.width = city.width
         s_city_list.append(self)
         self.img = np.zeros((200, 800))
-        for b in range(60):
-            h = np.random.randint(30, 180)
-            w = np.random.randint(30, 80)
-            x = np.random.randint(1, 700)
-            self.img[0:h, x:x + w] = np.random.rand()
-        self.img = np.flipud(self.img)
+        # for b in range(60):
+        #     h = np.random.randint(30, 180)
+        #     w = np.random.randint(30, 80)
+        #     x = np.random.randint(1, 700)
+        #     self.img[0:h, x:x + w] = np.random.rand()
+        # self.img = np.flipud(self.img)
 
 
 class Explosion():
@@ -171,8 +124,10 @@ class Explosion():
         self.y = y
         self.size = 500
         self.duration = 0.4  # [sec]
+        ####
         self.verts1 = (np.random.rand(30, 2) - 0.5) * self.size
         self.verts2 = (np.random.rand(20, 2) - 0.5) * self.size / 2
+        ####
         self.verts1[:, 0] = self.verts1[:, 0] + x
         self.verts1[:, 1] = self.verts1[:, 1] + y
         self.verts2[:, 0] = self.verts2[:, 0] + x
@@ -186,7 +141,7 @@ class Explosion():
 
 
 class SExplosion():
-    def __init__(self, explosion: Explosion):
+    def __init__(self, explosion):
         self.x = explosion.x
         self.y = explosion.y
         self.size = explosion.size
@@ -256,19 +211,6 @@ def Draw():
     plt.pause(0.001)
 
 
-def Init():
-    global s_world, s_turret, s_rocket_list, s_interceptor_list, s_city_list, s_explosion_list
-    s_world = World()
-    s_rocket_list = []
-    s_interceptor_list = []
-    s_turret = Turret()
-    s_city_list = []
-    s_explosion_list = []
-    City(-s_world.width * 0.5 + 400, -s_world.width * 0.25 - 400, 800)
-    City(-s_world.width * 0.25 + 400, -400, 800)
-    plt.rcParams['axes.facecolor'] = 'black'
-
-
 def Simulate(world, turret, rocket_list, interceptor_list, city_list, explosion_list):
     global s_world, s_turret, s_rocket_list, s_interceptor_list, s_city_list, s_explosion_list
     s_rocket_list = []
@@ -277,7 +219,15 @@ def Simulate(world, turret, rocket_list, interceptor_list, city_list, explosion_
     s_explosion_list = []
 
     s_world = copy.deepcopy(world)
-    s_turret = copy.deepcopy(turret)
+
+    # For debug purpose
+    s_world.score = 0  # float(s_world.score)
+    s_world.reward_city = 0  # float(s_world.reward_city) + 0.01
+    s_world.reward_open = 0  # float(s_world.reward_open) + 0.001
+    s_world.reward_fire = -10  # float(s_world.reward_fire) + 0.0001
+    s_world.reward_intercept = 100  # float(s_world.reward_intercept) + 0.00001
+
+    s_turret = STurret(copy.deepcopy(turret))
     s_rocket_list = [SRocket(rocket) for rocket in copy.deepcopy(rocket_list)]
     s_interceptor_list = [SInterceptor(interceptor) for interceptor in copy.deepcopy(interceptor_list)]
     s_city_list = [SCity(city) for city in copy.deepcopy(city_list)]
@@ -287,8 +237,9 @@ def Simulate(world, turret, rocket_list, interceptor_list, city_list, explosion_
 def Game_step(action_button):
     s_world.time = s_world.time + s_world.dt
 
-    if np.random.rand() < s_world.rocket_prob * s_world.dt:
-        Rocket(s_world)
+    # we dont want anay random now for debug puprpose.. TODO
+    # if np.random.rand() < s_world.rocket_prob * s_world.dt:
+    #     Rocket(s_world)
 
     for r in s_rocket_list:
         r.update()

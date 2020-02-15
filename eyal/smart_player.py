@@ -4,37 +4,39 @@ from debug_logger import create_logger
 import Interceptor_V2 as env
 from Interceptor_V2 import Init, Draw, Game_step
 
-logger = create_logger("train")
+# from env_for_training import Init, Draw, Game_step
+# import env_for_training as env
+
+logger = create_logger("smart_player")
 debug = logger.debug
 
 
 def choose_action(steps_to_sim):
-    rewards = calc_fancy_rewards(steps_to_sim)
-    # rewards = np.asarray(rewards)
-    shoot_r = rewards[0]
-    wait_r = rewards[1]
-
+    SHOOT = 3
+    WAIT = 1
+    diff_score = predict_shoot_score(steps_to_sim)
     # if it worth shooting, shoot:
-    if shoot_r > wait_r:
+    if diff_score > 0:
         debug("shoot!")
-        action_button = 3
+        action_button = SHOOT
     else:
         debug("skip")
-        action_button = 1
-
+        action_button = WAIT
     return action_button
 
 
-def calc_fancy_rewards(steps_to_sim):
+def predict_shoot_score(steps_to_sim):
     """
-    :param steps_to_sim: how many step until end of game (1000-time_t)
+    :param steps_to_sim: how many step until end of game (1000-stp)
     :param action_button: deserved action
     :return: the score of the game
     """
-    shoot = 3
-    wait = 1
-    actions = [shoot, wait]
-    rewards = []
+    SHOOT = 3
+    WAIT = 1
+    MAX_STEPS = 300
+    actions = [SHOOT, WAIT]
+    scores = []
+    steps_to_sim = min(steps_to_sim, MAX_STEPS)
     for action_button in actions:
         # init new simulate game
         sim_env.Simulate(env.world, env.turret, env.rocket_list, env.interceptor_list, env.city_list,
@@ -43,17 +45,15 @@ def calc_fancy_rewards(steps_to_sim):
         sim_env.Game_step(action_button)
 
         # peace steps until end of game
-        for i in range(min(steps_to_sim - 2, 200)):
-            sim_env.peace_step()
+        for i in range(steps_to_sim):
+            _, _, _, _, score = sim_env.peace_step()
+        # last step : save score in end of peace game
+        scores.append(score)
 
-        # last step : save score
-        r_locs, i_locs, c_locs, ang, score = sim_env.peace_step()
-
-        # append score in end of peace game for choosing specific action
-        rewards.append(score)
-
-    debug(f"steps_to_sim = {steps_to_sim}\nrewards={rewards}")
-    return rewards
+    shoot_score = scores[0] - scores[1]
+    if shoot_score != 0:
+        debug(f"steps_to_simulate = {steps_to_sim}\n diff={shoot_score}")
+    return shoot_score
 
 
 if __name__ == "__main__":
@@ -71,5 +71,6 @@ if __name__ == "__main__":
         action_button = choose_action(max_stp - stp)
         r_locs, i_locs, c_locs, ang, score = Game_step(action_button)
         debug(f"{stp}.score = {score}")
-        if stp % 30 == 0:
+
+        if action_button == 3 or stp % 1 == 0:
             Draw()
