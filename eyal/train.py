@@ -42,8 +42,8 @@ def eval_score(predicted_action, ang, score, steps_to_sim):
 
 
 if __name__ == "__main__":
-    NUMBER_OF_GAMES = 2
-    NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
+    NUMBER_OF_GAMES = 11
+    NUMBER_OF_STEPS_IN_GAME = 300  # total frames in a game
     BATCH_SIZE = int(NUMBER_OF_STEPS_IN_GAME / 2)
     render = False
     agent = DQNAgent()
@@ -74,15 +74,15 @@ if __name__ == "__main__":
                           np.array([normalized_t])]
             is_done = stp == NUMBER_OF_STEPS_IN_GAME
 
-            score = eval_score(action, ang, score, stp_left)
-            agent.memorize(state, action, score, next_state, is_done)
+            sim_score = eval_score(action, ang, score, stp_left)
+            agent.memorize(state, action, sim_score, next_state, is_done)
 
             state = next_state
 
             # turn this on if you want to render
             if render:
                 # once in _ episodes play on x_ fast forward
-                if stp % 100 == 0:
+                if stp % 10 == 0 and e % 10 == 0:
                     Draw()
 
         # TODO figure out about right way to use replay
@@ -95,6 +95,6 @@ if __name__ == "__main__":
             directory = "models"
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            file_path = os.path.join(directory, f"{agent.model.name}_e{e}_{time.strftime('%Y%m%d-%H%M%S')}.hdf5")
+            file_path = os.path.join(directory, f"{agent.model.name}_e{e}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.hdf5")
             agent.model.save(file_path)
             debug("Saved model to disk")

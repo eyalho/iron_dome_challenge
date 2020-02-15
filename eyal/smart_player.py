@@ -3,6 +3,9 @@ import simulate_Interceptor_V2 as sim_env
 from debug_logger import create_logger
 from env_for_training import Init, Draw, Game_step
 
+# import Interceptor_V2 as env
+# from Interceptor_V2 import Init, Draw, Game_step
+
 logger = create_logger("smart_player")
 debug = logger.debug
 
@@ -55,7 +58,7 @@ def simulate_shoot_score(steps_to_sim):
 if __name__ == "__main__":
     Init()
     max_stp = 1000
-    init_stp = 4
+    init_stp = 8
 
     # move turent to best angle
     for stp in range(init_stp):

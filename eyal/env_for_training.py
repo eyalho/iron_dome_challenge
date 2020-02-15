@@ -61,9 +61,9 @@ class World():
     time = 0  # [sec]
     score = 0
     reward_city = -15
-    reward_open = -3
-    reward_fire = -2
-    reward_intercept = 40
+    reward_open = -1
+    reward_fire = -1
+    reward_intercept = 4
     g = 9.8  # Gravity [m/sec**2]
     fric = 5e-7  # Air friction [Units of Science]
     rocket_prob = 1  # expected rockets per sec
@@ -125,8 +125,8 @@ class Rocket():
     def __init__(self, world):
         self.x = turret.x_hostile  # [m]
         self.y = turret.y_hostile  # [m]
-        self.v0 = 700 + 0.5 * 300  # [m/sec]
-        self.ang = -88 + 0.5 * 68  # [deg]
+        self.v0 = 700 + np.random.rand() * 300  # [m/sec]
+        self.ang = -88 + np.random.rand() * 68  # [deg]
         self.vx = self.v0 * np.sin(np.deg2rad(self.ang))
         self.vy = self.v0 * np.cos(np.deg2rad(self.ang))
         rocket_list.append(self)
@@ -243,10 +243,9 @@ def Init():
 
 def Game_step(action_button):
     world.time = world.time + world.dt
-    #
+
     if np.random.rand() < world.rocket_prob * world.dt:
         Rocket(world)
-    # world.rocket_prob = 0.01
 
     for r in rocket_list:
         r.update()

@@ -60,7 +60,7 @@ class DQNAgent:
         output_layer = Dense(self.action_size, activation='linear')(layer)
         model = Model(
             inputs=[r_locs_input_layer, i_locs_input_layer, c_locs_input_layer, ang_input_layer, features_input_layer],
-            outputs=output_layer, name="model")
+            outputs=output_layer, name="model_full_state")
         model.compile(optimizer='adam', loss='mse')
         # from keras.utils import plot_model
         # plot_model(model, to_file='model.png')
