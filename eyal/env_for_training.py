@@ -102,11 +102,6 @@ class Turret():
 class Interceptor():
     def __init__(self):
         self.x = turret.x
-        self.y = turret.y
-        self.vx = turret.v0 * np.sin(np.deg2rad(turret.ang))
-        self.vy = turret.v0 * np.cos(np.deg2rad(turret.ang))
-        world.score = world.score + world.reward_fire
-        interceptor_list.append(self)
 
     def update(self):
         self.v_loss = (self.vx ** 2 + self.vy ** 2) * world.fric * world.dt
@@ -120,7 +115,11 @@ class Interceptor():
         if np.abs(self.x) > world.width / 2:
             interceptor_list.remove(self)
 
-
+        self.y = turret.y
+        self.vx = turret.v0 * np.sin(np.deg2rad(turret.ang))
+        self.vy = turret.v0 * np.cos(np.deg2rad(turret.ang))
+        world.score = world.score + world.reward_fire
+        interceptor_list.append(self)
 class Rocket():
     def __init__(self, world):
         self.x = turret.x_hostile  # [m]

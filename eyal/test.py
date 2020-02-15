@@ -50,6 +50,8 @@ def test_globals():
     # global world, turret, rocket_list, interceptor_list, city_list, explosion_list
     Init()
     assert Interceptor_V2.world is not None
+    cl = Interceptor_V2.city_list
+    print(f" city list is {[(c.x, c.width) for c in cl]}")
 
 
 if __name__ == "__main__":

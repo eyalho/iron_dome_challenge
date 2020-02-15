@@ -2,7 +2,7 @@ import matplotlib as plt
 import numpy as np
 
 from DQNAgent import DQNAgent
-from eyal.train_env import Init, Draw, Game_step
+from eyal.env_for_training import Init, Draw, Game_step
 
 # run configurations
 episodes = 1000
