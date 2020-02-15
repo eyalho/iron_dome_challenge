@@ -23,6 +23,7 @@ class PolicyGradient:
             layer = tf.compat.v1.layers.dense(inputs=layer, units=hidden_layers[i], activation=tf.nn.relu,
                                     kernel_initializer=tf.keras.initializers.GlorotNormal(),
                                     name='hidden_layer_{}'.format(i+1))
+            #norm_layer = tf.compat.v1.layers.BatchNormalization()
         self.last_layer = tf.compat.v1.layers.dense(inputs=layer, units=num_of_actions, activation=tf.nn.tanh,
                                           kernel_initializer=tf.keras.initializers.GlorotNormal(),
                                           name='output')
@@ -32,15 +33,15 @@ class PolicyGradient:
         self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.cost)
 
 
-hidden_layers = [12,12]
+hidden_layers = [12, 24, 8]
 gamma = 0.99
-learning_rate = 0.001
+learning_rate = 0.0001
 
 pg = PolicyGradient(state_size=env.observation_space.shape[0], num_of_actions=env.action_space.n,
                     hidden_layers=hidden_layers, learning_rate=learning_rate)
 
 
-def print_stuff(s, every=100):
+def print_stuff(s, every=50):
     if game % every == 0 or game == 1:
         print(s)
 
@@ -88,7 +89,7 @@ for g in range(1500):
     print_stuff('score: {}\n----------'.format(env.score))
     data = data.append({'game': game, 'steps': steps, 'cost': c}, ignore_index=True)
 
-    if not g%100:
+    if not g%50:
         env.reset()
         env.render()
         state = env.state
@@ -98,7 +99,18 @@ for g in range(1500):
             steps += 1
             probs = sess.run(pg.action_prob, feed_dict={pg.states: np.expand_dims(state, axis=0)}).flatten()
             action = np.argmax(probs)
+            print(probs)
+            print(env.ang)
+            print(action)
             state, _, game_over, _ = env.step(action)
-            env.render()
+            if steps % 10 == 0:
+                env.render()
         end_reason = 'maximum possible steps' if steps == env._max_episode_steps else 'dropped pole or left frame'
         print("Game ended after {} steps ({})".format(steps, end_reason))
+
+data['steps_moving_average'] = data['steps'].rolling(window=50).mean()
+ax = data.plot('game','steps_moving_average', figsize=(10,10), legend=False)
+ax.set_ylabel('steps_moving_average')
+
+#ax = data.plot('game','cost_moving_average', figsize=(10,10), legend=False)
+#ax.set_ylabel('cost_moving_average')

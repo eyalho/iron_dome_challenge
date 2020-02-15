@@ -13,17 +13,30 @@ class IronDomeEnv(gym.Env):
     # Example when using discrete actions:
     self.action_space = spaces.Discrete(4)
     self._max_episode_steps = 1000
+    self.ang = 0
     # Example for using image as input:
-    self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(285,1), dtype=np.uint32)
+    self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(805,1), dtype=np.uint32)
     self.state = self.reset()
-
 
   def step(self, action):
 
-      r_locs, i_locs, c_locs, ang, score = Game_step(action)
-      next_state = np.concatenate([r_locs.flatten(), np.zeros((1, 140 - 2 * np.shape(r_locs)[0])), i_locs.flatten(),
-                                   np.zeros((1, 140 - 2 * np.shape(i_locs)[0])), c_locs.flatten(), ang], axis=None)
-      next_state = np.reshape(next_state, [285])
+      new_r_locs, new_i_locs, c_locs, self.ang, score = Game_step(action)
+
+      # padding
+      last_r_locs_padded = np.concatenate((self.last_r_locs.flatten(), np.zeros((200 - 2 * np.shape(self.last_r_locs)[0]))))
+      last_i_locs_padded = np.concatenate((self.last_i_locs.flatten(), np.zeros(( 200 - 2 * np.shape(self.last_i_locs)[0]))))
+      new_r_locs_padded = np.concatenate((new_r_locs.flatten(), np.zeros((200 - 2 * np.shape(new_r_locs)[0]))))
+      new_i_locs_padded = np.concatenate((new_i_locs.flatten(), np.zeros((200 - 2 * np.shape(new_i_locs)[0]))))
+
+
+      r_vels_padded = new_r_locs_padded - last_r_locs_padded
+      i_vels_padded = new_i_locs_padded - last_i_locs_padded
+
+      #next_state = np.concatenate((new_r_locs_padded, new_i_locs_padded, c_locs.flatten(), self.ang), axis=None)
+      next_state = np.concatenate((r_vels_padded, new_r_locs_padded, i_vels_padded, new_i_locs_padded, c_locs.flatten(), self.ang), axis=None)
+
+      self.last_r_locs = new_r_locs
+      self.last_i_locs = new_i_locs
       self.reward = score - self.score
       self.score = score
       self.t +=1
@@ -35,6 +48,7 @@ class IronDomeEnv(gym.Env):
 
   def reset(self):
       Init()
+      self.last_r_locs, self.last_i_locs, c_locs, ang, score = Game_step(1)
       self.t = 0
       self.reward = 0
       self.score = 0

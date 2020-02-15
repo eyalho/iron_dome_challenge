@@ -65,7 +65,7 @@ class World():
     reward_intercept = 4
     g = 9.8 # Gravity [m/sec**2]
     fric = 5e-7 # Air friction [Units of Science]
-    rocket_prob = 1 # expected rockets per sec
+    rocket_prob = 0.1 # expected rockets per sec
 
 
 class Turret():
@@ -125,7 +125,7 @@ class Rocket():
         self.x = turret.x_hostile # [m] 
         self.y = turret.y_hostile # [m]
         self.v0 = 700 + np.random.rand() * 300 # [m/sec] 
-        self.ang = -88 + np.random.rand() * 68 # [deg] 
+        self.ang = -88 + np.random.rand() * 68 # [deg]
         self.vx = self.v0 * np.sin(np.deg2rad(self.ang))
         self.vy = self.v0 * np.cos(np.deg2rad(self.ang))
         rocket_list.append(self)
@@ -224,7 +224,7 @@ def Draw():
     plt.axis([-world.width / 2, world.width / 2, 0, world.height])
     plt.title('Score: ' + str(world.score))
     plt.draw()
-    plt.pause(0.0001)
+    plt.pause(0.00001)
         
 
 def Init():
