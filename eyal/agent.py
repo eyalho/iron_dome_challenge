@@ -19,6 +19,42 @@ class DQNAgent:
         self.learning_rate = 0.001
         self.model = self._build_model()
 
+    def _build_simple_model(self):
+        """
+                original model was:
+                model = Sequential()
+                model.add(Dense(24, input_dim=self.state_size, activation='relu'))
+                model.add(Dense(24, activation='relu'))
+                model.add(Dense(self.action_size, activation='linear'))
+                model.compile(loss='mse',
+                              optimizer=Adam(lr=self.learning_rate))
+                return model
+
+                We change it in order to fit our problem:
+                - 4 chanel input (r_locs, i_locs, c_locs, ang)
+                - Added LSTM for remembering older locs states
+                -
+                :return:
+                """
+
+        hidden_size = 24
+        # Input Layer
+        ang_input_layer = Input(shape=(1,), name="angle")  # Turret angle (ang)
+        sim_score_input_layer = Input(shape=(1,), name="simulate_score")  # Turret angle (ang)
+        time_input_layer = Input(shape=(1,), name="time")  # time_t
+        layer = concatenate(
+            [ang_input_layer, sim_score_input_layer, time_input_layer])
+        layer = Dense(hidden_size, activation='relu')(layer)
+        layer = Dense(hidden_size, activation='relu')(layer)
+        output_layer = Dense(self.action_size, activation='linear')(layer)
+        model = Model(
+            inputs=[ang_input_layer, sim_score_input_layer, time_input_layer],
+            outputs=output_layer, name="model_simple")
+        model.compile(optimizer='adam', loss='mse')
+        from keras.utils import plot_model
+        plot_model(model, to_file=model.name)
+        return model
+
     def _build_model(self):
         """
         original model was:
