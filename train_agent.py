@@ -1,16 +1,17 @@
 import numpy as np
 from DQNAgent import DQNAgent
+import matplotlib as plt
 from Interceptor_V2 import Init, Draw, Game_step
 
 # run configurations
-episodes = 1000
+episodes = 5000
 model_name = 'DQN 24x24'
-render = False
+render = True
 batch_size = 32
 
 # env and agent initialization
 Init()
-agent = DQNAgent(state_size=285, action_size=4)
+agent = DQNAgent(state_size=565, action_size=4)
 scores = []
 
 
@@ -19,12 +20,17 @@ for e in range(episodes):
 
     # reset state in the beginning of each game
     Init()
-    r_locs, i_locs, c_locs, ang, score = Game_step(1)
-    state = np.concatenate((r_locs.flatten(), np.zeros((1, 140 - 2 *np.shape(r_locs)[0])), i_locs.flatten(), np.zeros((1, 140 - 2 *np.shape(i_locs)[0])), c_locs.flatten(), ang), axis=None)
-    state = np.reshape(state, [1, 285])
+    r_locs_1, i_locs_1, c_locs, ang, score = Game_step(1)
+    r_locs_2, i_locs_2, c_locs, ang, score = Game_step(1)
+    state = np.concatenate((r_locs_1.flatten(), np.zeros((1, 140 - 2 *np.shape(r_locs_1)[0])), \
+                            r_locs_2.flatten(), np.zeros((1, 140 - 2 * np.shape(r_locs_2)[0])), \
+                            i_locs_1.flatten(), np.zeros((1, 140 - 2 * np.shape(i_locs_1)[0])), \
+                            i_locs_2.flatten(), np.zeros((1, 140 - 2 * np.shape(i_locs_2)[0])), \
+                            c_locs.flatten(), ang), axis=None)
+    state = np.reshape(state, [1, 565])
 
     # time_t represents each frame of the game
-    for time_t in range(1000):
+    for time_t in range(998):
         # turn this on if you want to render
         if render:
             # once in 50 episodes play on x20 fast forward
@@ -34,12 +40,16 @@ for e in range(episodes):
         # Decide action
         action = agent.act(state)
         # Advance the game to the next frame based on the action.
-        r_locs, i_locs, c_locs, ang, new_score = Game_step(action)
-        next_state = np.concatenate((r_locs.flatten(), np.zeros((1, 140 - 2 * np.shape(r_locs)[0])), i_locs.flatten(),
-                                     np.zeros((1, 140 - 2 * np.shape(i_locs)[0])), c_locs.flatten(), ang), axis=None)
+        r_locs_1, i_locs_1 = r_locs_2, i_locs_2
+        r_locs_2, i_locs_2, c_locs, ang, new_score = Game_step(action)
+        next_state = np.concatenate((r_locs_1.flatten(), np.zeros((1, 140 - 2 * np.shape(r_locs_1)[0])), \
+                                r_locs_2.flatten(), np.zeros((1, 140 - 2 * np.shape(r_locs_2)[0])), \
+                                i_locs_1.flatten(), np.zeros((1, 140 - 2 * np.shape(i_locs_1)[0])), \
+                                i_locs_2.flatten(), np.zeros((1, 140 - 2 * np.shape(i_locs_2)[0])), \
+                                c_locs.flatten(), ang), axis=None)
         reward = new_score - score
         score = new_score
-        next_state = np.reshape(next_state, [1, 285])
+        next_state = np.reshape(next_state, [1, 565])
 
         # memorize the previous state, action, reward, and done
 
