@@ -88,11 +88,8 @@ if __name__ == "__main__":
         # TODO figure out about right way to use replay
         agent.replay(BATCH_SIZE)
 
-        debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}')
-        debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, sim_score: {sim_score}')
+        debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}, sim_score: {sim_score}')
         scores.append(score)
-        with open("score.txt", "w") as f:
-            f.write(str(scores))
 
         if e % 50 == 0:
             directory = "models"

@@ -1,9 +1,10 @@
 import os
 import time
+import uuid
 
 import numpy as np
 from debug_logger import create_logger
-from env_for_training import Init, Draw, Game_step
+from env_for_training import Init, Draw, Game_step, Save_draw
 # import simulate_Interceptor_V2 as sim_env
 from simple_agent import DQNAgent
 from smart_player import simulate_shoot_score
@@ -42,10 +43,13 @@ def eval_score(predicted_action, ang, score, steps_to_sim):
 
 
 if __name__ == "__main__":
+    unique = str(uuid.uuid4())[:5]
+    SAVE_RATE = 50
+    STP_RATE  = 10
     NUMBER_OF_GAMES = 50000
     NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
     BATCH_SIZE = int(NUMBER_OF_STEPS_IN_GAME / 2)
-    render = False
+    render = True
     agent = DQNAgent()
     scores = []
 
@@ -79,20 +83,29 @@ if __name__ == "__main__":
             # turn this on if you want to render
             if render:
                 # once in _ episodes play on x_ fast forward
-                if stp % 10 == 0 and e % 10 == 0:
-                    Draw()
+                if stp % STP_RATE == 0 and e % SAVE_RATE == 0:
+                    directory1 = "plots"
+                    directory2 = f"{agent.model.name}_{unique}"
+                    directory3 = f"e{e}"
+                    directory = os.path.join(directory1,directory2,directory3)
+                    if not os.path.exists(directory):
+                        os.makedirs(directory)
+                    file_path = os.path.join(directory, f"{stp}.png")
+                    Save_draw(file_path)
+
 
         # TODO figure out about right way to use replay
         agent.replay(BATCH_SIZE)
 
-        debug(f'simple: episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}')
-        debug(f'simple: episode: {e + 1}/{NUMBER_OF_GAMES}, score: {sim_score}')
+        debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}, sim_score: {sim_score}')
+
         scores.append(score)
 
-        if e % 50 == 0:
+        if e % SAVE_RATE == 0:
             directory = "models"
             if not os.path.exists(directory):
                 os.makedirs(directory)
             file_path = os.path.join(directory, f"{agent.model.name}_e{e}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.hdf5")
             agent.model.save(file_path)
             debug("Saved model to disk")
+
