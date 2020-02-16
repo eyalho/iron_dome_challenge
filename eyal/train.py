@@ -89,6 +89,7 @@ if __name__ == "__main__":
         agent.replay(BATCH_SIZE)
 
         debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}')
+        debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, sim_score: {sim_score}')
         scores.append(score)
         with open("score.txt", "w") as f:
             f.write(str(scores))

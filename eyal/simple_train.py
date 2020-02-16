@@ -73,7 +73,7 @@ if __name__ == "__main__":
             normalized_t = stp / NUMBER_OF_STEPS_IN_GAME
             next_state = [np.array([ang]), np.array([normalized_sim_score]), np.array([normalized_t])]
             is_done = stp == NUMBER_OF_STEPS_IN_GAME
-            agent.memorize(state, action, sim_score, next_state, is_done)
+            agent.memorize(state, action, score, next_state, is_done)
             state = next_state
 
             # turn this on if you want to render
@@ -86,9 +86,8 @@ if __name__ == "__main__":
         agent.replay(BATCH_SIZE)
 
         debug(f'simple: episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}')
+        debug(f'simple: episode: {e + 1}/{NUMBER_OF_GAMES}, score: {sim_score}')
         scores.append(score)
-        with open("score.txt", "w") as f:
-            f.write(str(scores))
 
         if e % 50 == 0:
             directory = "models"

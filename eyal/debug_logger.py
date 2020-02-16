@@ -1,4 +1,6 @@
 import logging
+import os
+import time
 
 
 class OnlyDebugFilter(logging.Filter):
@@ -18,8 +20,12 @@ def create_logger(name):
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+    directory = "logs"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    file_path = os.path.join(directory, f"{logger.name}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.log")
 
-    fh = logging.FileHandler("debug.log")
+    fh = logging.FileHandler(file_path)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
