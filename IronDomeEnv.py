@@ -33,21 +33,22 @@ class IronDomeEnv(gym.Env):
 
       x_grid = np.array(list(range(-5000,5000, self.dx)))
       y_grid = np.array(list(range(0, 5000, self.dy)))
+      eps = np.exp(-10)
 
       r_patches = np.zeros(len(x_grid)*len(y_grid))
       for i in range(len(new_r_locs)):
           x = new_r_locs[i, 0]
           y = new_r_locs[i, 1]
-          x_loc = np.where(np.equal(x_grid>=x, x_grid+self.dx>=x)==False)
-          y_loc = np.where(np.equal(y_grid >= y, y_grid + self.dy >= y) == False)
+          x_loc = np.where(np.equal(x_grid>=x, x_grid+self.dx>=x)==False)[0][0]
+          y_loc = np.where(np.equal(y_grid > y, y_grid + self.dy >= y) == False)[0][0]
           r_patches[x_loc + y_loc*(len(x_grid+1))]+=1
 
       i_patches = np.zeros(len(x_grid) * len(y_grid))
       for i in range(len(new_i_locs)):
           x = new_i_locs[i, 0]
           y = new_i_locs[i, 1]
-          x_loc = np.where(np.equal(x_grid >= x, x_grid + self.dx >= x) == False)
-          y_loc = np.where(np.equal(y_grid >= y, y_grid + self.dy >= y) == False)
+          x_loc = np.where(np.equal(x_grid > x, x_grid + self.dx >= x) == False)[0]
+          y_loc = np.where(np.equal(y_grid > y, y_grid + self.dy >= y) == False)[0]
           i_patches[x_loc + y_loc * (len(x_grid + 1))] += 1
 
 
