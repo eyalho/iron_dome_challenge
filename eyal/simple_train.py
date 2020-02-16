@@ -19,8 +19,8 @@ def eval_score(predicted_action, ang, score, steps_to_sim):
     :param action_button: deserved action
     :return: the score of the game
     """
-    SHOOT = 3
-    ANGLE_SCORE_PUNISHMENT = 10000
+    #SHOOT = 3
+    #ANGLE_SCORE_PUNISHMENT = 100
 
     ############### SHOOT reward ###############
     # We want the agent to shoot when he's going to gain score.
@@ -28,17 +28,17 @@ def eval_score(predicted_action, ang, score, steps_to_sim):
     # So we simulate next steps (with no other shooting) and calc
     # how the score will be difference if he chose to shoot..
     shoot_score = simulate_shoot_score(steps_to_sim)
-    if predicted_action == SHOOT:
-        score += shoot_score
-    else:
-        score -= shoot_score
-
+    #if predicted_action == SHOOT:
+    #    score += shoot_score
+    #else:
+    #    score -= shoot_score
+    #
     ############### ANGLE reward ###############
     # While playing we noticed that optimal angel should be
     # between 12 to 72
-    if ang < 12 or score > 72:
-        score -= ANGLE_SCORE_PUNISHMENT
-
+    #if ang < 12 or score > 72:
+    #    score -= ANGLE_SCORE_PUNISHMENT
+    score = shoot_score
     return score
 
 
