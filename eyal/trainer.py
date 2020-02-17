@@ -14,7 +14,7 @@ from simulator.simulate_shoot import simulate_shoot_score
 
 
 if __name__ == "__main__":
-    NUMBER_OF_STEPS_IN_GAME = 20  # total frames in a game
+    NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
     unique_id = str(uuid.uuid4())[:5]
 
     ################################################
