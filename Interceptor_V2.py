@@ -62,7 +62,7 @@ class World():
     reward_city = -15
     reward_open = -1
     reward_fire = -1
-    reward_intercept = 4
+    reward_intercept = 400
     g = 9.8 # Gravity [m/sec**2]
     fric = 5e-7 # Air friction [Units of Science]
     rocket_prob = 1 # expected rockets per sec

@@ -14,10 +14,10 @@ class IronDomeEnv(gym.Env):
     self.action_space = spaces.Discrete(4)
     self._max_episode_steps = 1000
     self.ang = 0
-    self.dx = 1000
+    self.dx = 2000
     self.dy = 1000
     # Example for using image as input:
-    self.observation_space = spaces.Box(low=0, high=np.inf, shape=(105,1), dtype=np.uint32)
+    self.observation_space = spaces.Box(low=0, high=np.inf, shape=(55,1), dtype=np.uint32)
     self.state = self.reset()
 
 
@@ -33,23 +33,26 @@ class IronDomeEnv(gym.Env):
 
       x_grid = np.array(list(range(-5000,5000, self.dx)))
       y_grid = np.array(list(range(0, 5000, self.dy)))
-      eps = np.exp(-10)
+      eps = np.exp(-10) # avoid falling on grid points for patch calculation
 
       r_patches = np.zeros(len(x_grid)*len(y_grid))
       for i in range(len(new_r_locs)):
-          x = new_r_locs[i, 0]
-          y = new_r_locs[i, 1]
-          x_loc = np.where(np.equal(x_grid>=x, x_grid+self.dx>=x)==False)[0][0]
-          y_loc = np.where(np.equal(y_grid > y, y_grid + self.dy >= y) == False)[0][0]
-          r_patches[x_loc + y_loc*(len(x_grid+1))]+=1
+          x = new_r_locs[i, 0] + eps
+          y = new_r_locs[i, 1] + eps
+          x_loc = np.where(np.equal(x_grid>=x, x_grid+self.dx>=x)==False)[0] # between which grid point x is found
+          y_loc = np.where(np.equal(y_grid > y, y_grid + self.dy >= y) == False)[0]# between which grid point y is found
+          if x_loc and y_loc:
+            r_patches[x_loc + y_loc*(len(x_grid+1))]+=1 # add 1 to relevant patch bin
 
+    #do same for interceptors
       i_patches = np.zeros(len(x_grid) * len(y_grid))
       for i in range(len(new_i_locs)):
-          x = new_i_locs[i, 0]
-          y = new_i_locs[i, 1]
+          x = new_i_locs[i, 0] + eps
+          y = new_i_locs[i, 1] + eps
           x_loc = np.where(np.equal(x_grid > x, x_grid + self.dx >= x) == False)[0]
           y_loc = np.where(np.equal(y_grid > y, y_grid + self.dy >= y) == False)[0]
-          i_patches[x_loc + y_loc * (len(x_grid + 1))] += 1
+          if x_loc and y_loc:
+            i_patches[x_loc + y_loc * (len(x_grid + 1))] += 1
 
 
 

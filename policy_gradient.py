@@ -33,7 +33,7 @@ class PolicyGradient:
         self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.cost)
 
 
-hidden_layers = [12, 24, 8]
+hidden_layers = [128, 12]
 gamma = 0.99
 learning_rate = 0.0001
 
