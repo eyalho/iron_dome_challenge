@@ -24,6 +24,59 @@ Using this Class makes it easier to use open source code with minimal adjustment
 
             2D_histogram - each rocket/interceptor is associated with one of [x_patches]x[y_patches patches] of the sky, the result is a 2-channel image containing
             the amount of rocket/interceptors at each sky patch. turret angle and cities positions are returned in independent arrays.
+      new_r_locs, new_i_locs, c_locs, self.ang, score = Game_step(action)
+
+      # padding
+      #ast_r_locs_padded = np.concatenate((self.last_r_locs.flatten(), np.zeros((200 - 2 * np.shape(self.last_r_locs)[0]))))
+      #last_i_locs_padded = np.concatenate((self.last_i_locs.flatten(), np.zeros(( 200 - 2 * np.shape(self.last_i_locs)[0]))))
+      #new_r_locs_padded = np.concatenate((new_r_locs.flatten(), np.zeros((200 - 2 * np.shape(new_r_locs)[0]))))
+      #new_i_locs_padded = np.concatenate((new_i_locs.flatten(), np.zeros((200 - 2 * np.shape(new_i_locs)[0]))))
+
+      x_grid = np.array(list(range(-5000,5000, self.dx)))
+      y_grid = np.array(list(range(0, 5000, self.dy)))
+      eps = np.exp(-10) # avoid falling on grid points for patch calculation
+
+      r_patches = np.zeros(len(x_grid)*len(y_grid))
+      for i in range(len(new_r_locs)):
+          x = new_r_locs[i, 0] + eps
+          y = new_r_locs[i, 1] + eps
+          x_loc = np.where(np.equal(x_grid>=x, x_grid+self.dx>=x)==False)[0] # between which grid point x is found
+          y_loc = np.where(np.equal(y_grid > y, y_grid + self.dy >= y) == False)[0]# between which grid point y is found
+          if x_loc and y_loc:
+            r_patches[x_loc + y_loc*(len(x_grid+1))]+=1 # add 1 to relevant patch bin
+
+    #do same for interceptors
+      i_patches = np.zeros(len(x_grid) * len(y_grid))
+      for i in range(len(new_i_locs)):
+          x = new_i_locs[i, 0] + eps
+          y = new_i_locs[i, 1] + eps
+          x_loc = np.where(np.equal(x_grid > x, x_grid + self.dx >= x) == False)[0]
+          y_loc = np.where(np.equal(y_grid > y, y_grid + self.dy >= y) == False)[0]
+          if x_loc and y_loc:
+            i_patches[x_loc + y_loc * (len(x_grid + 1))] += 1
+
+
+
+      next_state = np.concatenate((r_patches, i_patches, c_locs.flatten(),np.array([self.ang])))
+
+
+
+      #r_vels_padded = new_r_locs_padded - last_r_locs_padded
+      #i_vels_padded = new_i_locs_padded - last_i_locs_padded
+
+      #next_state = np.concatenate((new_r_locs_padded, new_i_locs_padded, c_locs.flatten(), self.ang), axis=None)
+      #next_state = np.concatenate((r_vels_padded, new_r_locs_padded, i_vels_padded, new_i_locs_padded, c_locs.flatten(), self.ang), axis=None)
+
+      #self.last_r_locs = new_r_locs
+      #self.last_i_locs = new_i_locs
+      self.reward = score - self.score
+      self.score = score
+      self.state = next_state
+      self.t +=1
+      done = False
+      if self.t==self._max_episode_steps:
+          done=True
+      return next_state, self.reward, done, {}
 
             flattened_locs - flattening and padding the locations of rockets, interceptors, cities and turret angle
         """
