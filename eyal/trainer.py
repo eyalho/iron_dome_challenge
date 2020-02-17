@@ -11,37 +11,10 @@ from simulator.simulate_action import predict_scores
 from simulator.simulate_shoot import simulate_shoot_score
 
 
-def eval_score(predicted_action, ang, score, steps_to_sim):
-    """
-    :param steps_to_sim: how many step until end of game (1000-stp)
-    :param action_button: deserved action
-    :return: the score of the game
-    """
-    # SHOOT = 3
-    # ANGLE_SCORE_PUNISHMENT = 100
-
-    ############### SHOOT reward ###############
-    # We want the agent to shoot when he's going to gain score.
-    # But the score will be received in the far future.
-    # So we simulate next steps (with no other shooting) and calc
-    # how the score will be difference if he chose to shoot..
-    shoot_score = simulate_shoot_score(steps_to_sim)
-    # if predicted_action == SHOOT:
-    #    score += shoot_score
-    # else:
-    #    score -= shoot_score
-    #
-    ############### ANGLE reward ###############
-    # While playing we noticed that optimal angel should be
-    # between 12 to 72
-    # if ang < 12 or score > 72:
-    #    score -= ANGLE_SCORE_PUNISHMENT
-    score = shoot_score
-    return score
 
 
 if __name__ == "__main__":
-    NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
+    NUMBER_OF_STEPS_IN_GAME = 20  # total frames in a game
     unique_id = str(uuid.uuid4())[:5]
 
     ################################################
@@ -51,6 +24,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--agent_filename')
     parser.add_argument('--simulate')
+    parser.add_argument('--simulate_reward')
     parser.add_argument('--max_episodes')
     parser.add_argument('--episodes_save_period')
     parser.add_argument('--game_step_save_period')
@@ -74,6 +48,13 @@ if __name__ == "__main__":
         simulate = args.simulate
     else:
         simulate = True
+
+    # True or False: reward = last_score + simulator_diff_score(action)
+    if args.simulate_reward:
+        simulate_reward = args.simulate_reward
+    else:
+        simulate_reward = True
+
 
     # run for at most max_episodes
     if args.max_episodes:
@@ -115,29 +96,55 @@ if __name__ == "__main__":
 
     Init()
     state = agent.init_state()
+    score=0
     debug(f"\nstart train of {max_episodes} episodes, with batch size {batch_size}")
     for e in range(max_episodes):
+        sum_diff_sim_score = 0
         for stp in range(NUMBER_OF_STEPS_IN_GAME):
             stp_left = NUMBER_OF_STEPS_IN_GAME - stp
-            action = agent.act(state)
-            r_locs, i_locs, c_locs, ang, score = Game_step(action)
 
+            # simulate next step
+            last_score = score
             if simulate:
                 predicted_shoot_score, predicted_wait_score = predict_scores(stp_left)
                 diff_sim_score = predicted_shoot_score - predicted_wait_score
+                sum_diff_sim_score += diff_sim_score
+            else:
+                predicted_shoot_score = predicted_wait_score = diff_sim_score = 0
+
+            # let agent act next step
+            action = agent.act(state)
+            r_locs, i_locs, c_locs, ang, score = Game_step(action)
 
             MAX_ANG = 360
             MAX_DIFF_SIM_SCORE = 10
             normalized_ang = ang / MAX_ANG
             normalized_sim_score = diff_sim_score / MAX_DIFF_SIM_SCORE
             normalized_t = stp / NUMBER_OF_STEPS_IN_GAME
-            next_state = [np.array([ang]), np.array([normalized_sim_score]), np.array([normalized_t])]
+
+            #TODO REFACTOR
+            if agent_filename == "simple_agent":
+                next_state = [np.array([ang]), np.array([normalized_sim_score]), np.array([normalized_t])]
+            if agent_filename == "naive_agent":
+                default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
+                r_locs = np.concatenate([default_val, r_locs])
+                i_locs = np.concatenate([default_val, i_locs])
+                next_state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
+                              np.array([normalized_t])]
+
+            if simulate_reward:
+                if action == 3:
+                    score = last_score + diff_sim_score
+                else:
+                    score = last_score - diff_sim_score
+
             is_done = stp == NUMBER_OF_STEPS_IN_GAME
+
             agent.memorize(state, action, score, next_state, is_done)
             state = next_state
 
             # once in _ episodes play on x_ fast forward
-            if stp % game_step_save_period == 0 and e % episodes_save_period == 0:
+            if stp % game_step_save_period == 0 and e % episodes_save_period == 0 and stp != 0:
                 directory0 = "results"
                 directory1 = "plots"
                 directory2 = f"{agent.model.name}_{unique_id}"
@@ -151,10 +158,12 @@ if __name__ == "__main__":
         # TODO figure out about right way to use replay
         agent.replay(batch_size)
 
-        debug(f'episode: {e + 1}/{max_episodes}, score: {score}, sim_score: {diff_sim_score}')
+        debug(f'episode: {e + 1}/{max_episodes}, score: {score}, sum_diff_sim_score: {sum_diff_sim_score}')
 
         if e % episodes_save_period == 0:
-            directory = "models"
+            directory0 = "results"
+            directory1 = "models"
+            directory = os.path.join(directory0, directory1)
             if not os.path.exists(directory):
                 os.makedirs(directory)
             file_path = os.path.join(directory, f"{agent.model.name}_e{e}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.hdf5")

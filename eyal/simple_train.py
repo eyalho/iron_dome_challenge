@@ -67,10 +67,11 @@ if __name__ == "__main__":
         state = [np.array([ang]), np.array([0]), np.array([normalized_t])]
         for stp in range(NUMBER_OF_STEPS_IN_GAME):
             stp_left = NUMBER_OF_STEPS_IN_GAME - stp
-            action = agent.act(state)
-            r_locs, i_locs, c_locs, ang, score = Game_step(action)
 
             sim_score = eval_score(action, ang, score, stp_left)
+
+            action = agent.act(state)
+            r_locs, i_locs, c_locs, ang, score = Game_step(action)
 
             normalized_ang = ang / MAX_ANG
             normalized_sim_score = sim_score / MAX_SIM_SCORE

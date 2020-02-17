@@ -6,6 +6,7 @@ from simulator import simulate_Interceptor_V2 as sim_env
 
 def predict_score(action, steps_to_sim):
     MAX_STEPS = 300
+    final_score = 0
 
     steps_to_sim = max(0, min(steps_to_sim - 1, MAX_STEPS))
 
