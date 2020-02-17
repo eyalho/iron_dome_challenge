@@ -1,7 +1,7 @@
 import numpy as np
 
-import Interceptor_V2
-from Interceptor_V2 import Init, Game_step
+from envs import Interceptor_V2
+from envs.Interceptor_V2 import Init, Game_step
 
 g = Interceptor_V2.World.g  # Gravity [m/sec**2]
 dt = Interceptor_V2.World.dt  # [sec]

@@ -23,7 +23,7 @@ def build_model():
 
 def test_model():
     import numpy as np
-    from Interceptor_V2 import Init, Game_step
+    from envs.Interceptor_V2 import Init, Game_step
     model = build_model()
     Init()
     action_button = 3
@@ -45,8 +45,8 @@ def test_globals():
     (global world, turret, rocket_list, interceptor_list, city_list, explosion_list)
     :return:
     """
-    import Interceptor_V2
-    from Interceptor_V2 import Init
+    from envs import Interceptor_V2
+    from envs.Interceptor_V2 import Init
     # global world, turret, rocket_list, interceptor_list, city_list, explosion_list
     Init()
     assert Interceptor_V2.world is not None

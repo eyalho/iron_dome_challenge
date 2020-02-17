@@ -1,7 +1,7 @@
-import env_for_training as env
-import simulate_Interceptor_V2 as sim_env
-from debug_logger import create_logger
-from env_for_training import Init, Draw, Game_step
+from envs import env_for_training as env
+from simulator import simulate_Interceptor_V2 as sim_env
+from savers.debug_logger import create_logger
+from envs.env_for_training import Init, Draw, Game_step
 
 # import Interceptor_V2 as env
 # from Interceptor_V2 import Init, Draw, Game_step

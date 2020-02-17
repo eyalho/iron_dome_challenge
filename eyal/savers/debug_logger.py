@@ -20,7 +20,9 @@ def create_logger(name):
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    directory = "logs"
+    directory1 = "results"
+    directory2 = "logs"
+    directory = os.path.join(directory1, directory2)
     if not os.path.exists(directory):
         os.makedirs(directory)
     file_path = os.path.join(directory, f"{logger.name}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.log")
@@ -33,8 +35,6 @@ def create_logger(name):
     f = OnlyDebugFilter()
     logger.addFilter(f)
 
-    # def debug(msg, *args, **kwargs):
-    #     return logging.debug(msg, *args, **kwargs)
     return logger
 
 

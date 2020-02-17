@@ -3,11 +3,11 @@ import time
 import uuid
 
 import numpy as np
-from debug_logger import create_logger
-from env_for_training import Init, Draw, Game_step, Save_draw
+from savers.debug_logger import create_logger
+from envs.env_for_training import Init, Game_step, Save_draw
 # import simulate_Interceptor_V2 as sim_env
-from simple_agent import DQNAgent
-from smart_player import simulate_shoot_score
+from agents.simple_agent import DQNAgent
+from simulator.simulate_shoot import simulate_shoot_score
 
 logger = create_logger("simple train")
 debug = logger.debug

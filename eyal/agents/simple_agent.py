@@ -1,4 +1,8 @@
 # Deep Q-learning Agent
+"""
+We figured out that this the naive though is too hard for a short time training..
+So, next we tried to create as simple network as we could
+"""
 import random
 from collections import deque
 
@@ -59,3 +63,7 @@ class DQNAgent:
             self.model.fit(state, np.array(target_f), epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
+
+    def init_state(self):
+        state = [np.array([0]), np.array([0]), np.array([0])]
+        return state
