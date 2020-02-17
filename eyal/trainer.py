@@ -46,12 +46,16 @@ if __name__ == "__main__":
     # True or False: should we use the simulator on each step to evaluate the action score
     if args.simulate:
         simulate = args.simulate
+        if simulate == "Fasle":
+            simulate = False
     else:
         simulate = True
 
     # True or False: reward = last_score + simulator_diff_score(action)
     if args.simulate_reward:
         simulate_reward = args.simulate_reward
+        if simulate_reward == "Fasle":
+            simulate_reward = False
     else:
         simulate_reward = True
 
