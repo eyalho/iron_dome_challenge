@@ -11,6 +11,12 @@ from smart_player import simulate_shoot_score
 logger = create_logger("train")
 debug = logger.debug
 
+load_weights = True
+episode_ofset = 0
+if load_weights:
+    Weights_Path = './models/model_full_state_e2800_2020_02_17-18_03_35.hdf5'
+    episode_ofset = 2800
+
 
 def eval_score(predicted_action, ang, score, steps_to_sim):
     """
@@ -47,13 +53,16 @@ if __name__ == "__main__":
     BATCH_SIZE = int(NUMBER_OF_STEPS_IN_GAME / 2)
     render = False
     agent = DQNAgent()
+    if load_weights:
+        agent.model.load_weights('./models/model_full_state_e2800_2020_02_17-18_03_35.hdf5')
+
     scores = []
 
     debug(f"start train of {NUMBER_OF_GAMES} episodes, with batch size {BATCH_SIZE}\n")
     default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
     # just for the case where there are no r_locs/i_locs
 
-    for e in range(NUMBER_OF_GAMES):
+    for e in range(NUMBER_OF_GAMES-episode_ofset):
         Init()
         r_locs = default_val  # rocket
         i_locs = default_val  # interceptor
@@ -62,20 +71,22 @@ if __name__ == "__main__":
         normalized_t = 0
         state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
                  np.array([normalized_t])]
+        score = 0
         for stp in range(NUMBER_OF_STEPS_IN_GAME):
             stp_left = NUMBER_OF_STEPS_IN_GAME - stp
             normalized_t = stp / NUMBER_OF_STEPS_IN_GAME
 
             action = agent.act(state)
-            r_locs, i_locs, c_locs, ang, score = Game_step(action)
+            r_locs, i_locs, c_locs, ang, new_score = Game_step(action)
             r_locs = np.concatenate([default_val, r_locs])
             i_locs = np.concatenate([default_val, i_locs])
             next_state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
                           np.array([normalized_t])]
             is_done = stp == NUMBER_OF_STEPS_IN_GAME
-
-            sim_score = eval_score(action, ang, score, stp_left)
-            agent.memorize(state, action, sim_score, next_state, is_done)
+            reward = new_score-score
+            score = new_score
+            # sim_score = eval_score(action, ang, score, stp_left)
+            agent.memorize(state, action, reward, next_state, is_done)
 
             state = next_state
 
@@ -88,13 +99,13 @@ if __name__ == "__main__":
         # TODO figure out about right way to use replay
         agent.replay(BATCH_SIZE)
 
-        debug(f'episode: {e + 1}/{NUMBER_OF_GAMES}, score: {score}, sim_score: {sim_score}')
+        debug(f'episode: {e + 1 + episode_ofset}/{NUMBER_OF_GAMES}, score: {score}')
         scores.append(score)
 
         if e % 50 == 0:
             directory = "models"
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            file_path = os.path.join(directory, f"{agent.model.name}_e{e}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.hdf5")
+            file_path = os.path.join(directory, f"{agent.model.name}_e{e+episode_ofset}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.hdf5")
             agent.model.save(file_path)
             debug("Saved model to disk")
