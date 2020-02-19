@@ -65,15 +65,17 @@ if __name__ == "__main__":
         for stp in range(NUMBER_OF_STEPS_IN_GAME):
             stp_left = NUMBER_OF_STEPS_IN_GAME - stp
             normalized_t = stp / NUMBER_OF_STEPS_IN_GAME
-            sim_score = eval_score(action, ang, score, stp_left)
 
             action = agent.act(state)
+
             r_locs, i_locs, c_locs, ang, score = Game_step(action)
+
             r_locs = np.concatenate([default_val, r_locs])
             i_locs = np.concatenate([default_val, i_locs])
             next_state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
                           np.array([normalized_t])]
             is_done = stp == NUMBER_OF_STEPS_IN_GAME
+            sim_score = eval_score(action, ang, score, stp_left)
 
             agent.memorize(state, action, sim_score, next_state, is_done)
 
