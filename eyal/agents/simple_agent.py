@@ -11,6 +11,7 @@ from keras.layers import Dense, Input, concatenate
 from keras.models import Model
 
 
+
 class DQNAgent:
     def __init__(self, action_size=4):
         # self.state_size = state_size
@@ -67,3 +68,13 @@ class DQNAgent:
     def init_state(self):
         state = [np.array([0]), np.array([0]), np.array([0])]
         return state
+
+    def create_state(self, r_locs, i_locs, c_locs, ang, score, stp,
+                     predicted_shoot_score=None, predicted_wait_score=None):
+        from trainer import Conf
+        normalized_sim_score = (predicted_shoot_score - predicted_wait_score) / 10
+        normalized_t = stp / Conf.NUMBER_OF_STEPS_IN_GAME
+        normalized_ang = ang / Conf.MAX_ANG
+        next_state = [np.array([normalized_ang]), np.array([normalized_sim_score]), np.array([normalized_t])]
+        return next_state
+

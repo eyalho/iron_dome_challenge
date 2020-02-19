@@ -104,3 +104,15 @@ class DQNAgent:
         state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
                  np.array([normalized_t])]
         return state
+
+    def create_state(self, r_locs, i_locs, c_locs, ang, score, stp,
+                     predicted_shoot_score=None, predicted_wait_score=None):
+        from trainer import Conf
+        normalized_t = stp / Conf.NUMBER_OF_STEPS_IN_GAME
+        normalized_ang = ang / Conf.MAX_ANG
+        default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
+        r_locs = np.concatenate([default_val, r_locs])
+        i_locs = np.concatenate([default_val, i_locs])
+        next_state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([normalized_ang]),
+                      np.array([normalized_t])]
+        return next_state
