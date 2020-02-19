@@ -14,11 +14,11 @@ def predict_score(action, steps_to_sim):
     sim_env.Simulate(env.world, env.turret, env.rocket_list, env.interceptor_list, env.city_list,
                      env.explosion_list)
     # act
-    sim_env.Game_step(action)
+    sim_env.simulate_game_step(action)
 
     # peace steps until end of game
     for i in range(steps_to_sim):
-        _, _, _, _, final_score = sim_env.peace_step()
+        _, _, _, _, final_score = sim_env.simulate_peace_step()
     return final_score
 
 

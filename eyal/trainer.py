@@ -14,7 +14,7 @@ from simulator.simulate_shoot import simulate_shoot_score
 
 
 if __name__ == "__main__":
-    NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
+    NUMBER_OF_STEPS_IN_GAME = 100  # total frames in a game
     unique_id = str(uuid.uuid4())[:5]
 
     ################################################
@@ -98,11 +98,11 @@ if __name__ == "__main__":
     for kwarg in args._get_kwargs():
         debug(f"{kwarg[0]}, {eval(kwarg[0])}")
 
-    Init()
-    state = agent.init_state()
     score=0
     debug(f"\nstart train of {max_episodes} episodes, with batch size {batch_size}")
     for e in range(max_episodes):
+        Init()
+        state = agent.init_state()
         sum_diff_sim_score = 0
         for stp in range(NUMBER_OF_STEPS_IN_GAME):
             stp_left = NUMBER_OF_STEPS_IN_GAME - stp
