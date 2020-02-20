@@ -7,8 +7,8 @@ import importlib
 from savers.debug_logger import create_logger
 from savers.episode_saver import EpisodeSaver
 from envs.env_for_training import Init, Game_step, Save_draw
+from savers.games_saver import GamesSaver
 from savers.python_files_saver import save_program_files
-from simulator.simulate_action import predict_scores
 
 
 class Conf:
@@ -70,6 +70,8 @@ class Conf:
 
 if __name__ == "__main__":
     conf = Conf()
+    conf.NUMBER_OF_STEPS_IN_GAME = 100
+    conf.batch_size = 100
     agent = conf.agent
     debug = conf.logger.debug
 
@@ -114,22 +116,18 @@ if __name__ == "__main__":
             agent.memorize(state, action, score, next_state, is_done)
             state = next_state
 
-            # Apply savers
+            # Apply Game savers
             # once in _ episodes play on x_ fast forward
-            if stp % conf.game_step_save_period == 0 and e % conf.episodes_save_period == 0 and e != 0:
+            conf.episodes_save_period = 1
+            if stp % conf.game_step_save_period == 0 and e % conf.episodes_save_period == 0:
                 if stp == 0:
-                    epi_saver = EpisodeSaver()  # init an empty saver
-                directory1 = "plots"
-                directory2 = f"e{e}"
-                directory3 = f"screen_shots"
-                directory = os.path.join(conf.results_folder, directory1, directory2, directory3)
-                if not os.path.exists(directory):
-                    os.makedirs(directory)
+                    games_saver = GamesSaver(conf.results_folder)  # init an empty saver
+                games_saver.save_screen_shot(e, stp, Save_draw)
+                games_saver.update(r_locs, i_locs, c_locs, ang, score, stp, action)
 
-                file_path = os.path.join(directory, f"{stp}.png")
-                Save_draw(file_path)
 
         ################# END of game #################
+        games_saver.save_game(e)
         # TODO figure out about right way to use replay
         debug(f'episode: {e + 1}/{conf.max_episodes}, score: {score}')
 

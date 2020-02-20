@@ -20,7 +20,7 @@ def create_logger(name):
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    directory1 = "results"
+    directory1 = "results_folder"
     directory2 = "logs"
     directory = os.path.join(directory1, directory2)
     if not os.path.exists(directory):
