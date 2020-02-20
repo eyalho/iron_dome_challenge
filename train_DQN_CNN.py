@@ -11,7 +11,7 @@ debug = logger.debug
 load_weights = False
 episode_ofset = 0
 if load_weights:
-    Weights_Path = './models/model_full_state_e2800_2020_02_17-18_03_35.hdf5'
+    Weights_Path = './models/DQN CNN 42x84x12_e3400_2020_02_20-20_07_33.hdf5'
     episode_ofset = 0
 
 
@@ -26,6 +26,7 @@ env = IronDomeEnv(state_type='histogram_2D')
 agent = DQN_CNN_agent(action_size=4, env=env)
 if load_weights:
   agent.model.load_weights(weights_Path)
+  agent.epsilon = self.eepsilon_min
 scores = []
 
 
@@ -54,6 +55,7 @@ for e in range(episodes-episode_ofset):
     # train the agent with the experience of the episode
     if len(agent.memory) > batch_size:
         agent.replay(batch_size)
+        print("replaying memory")
     scores.append(env.score)
 
 
