@@ -6,7 +6,7 @@ import numpy as np
 from savers.debug_logger import create_logger
 from envs.env_for_training import Init, Game_step, Save_draw
 # import simulate_Interceptor_V2 as sim_env
-from agents.simple_agent import DQNAgent
+from agents.simple_model_agent import DQNAgent
 from simulator.simulate_shoot import simulate_shoot_score
 
 logger = create_logger("simple train")

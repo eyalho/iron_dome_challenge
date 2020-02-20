@@ -4,44 +4,26 @@ Actually we were the naive not the agent.
 Firstly, we tried just give all state data "as is" to the agent and let it figure out by itself
 how to become the best player
 """
-import random
-from collections import deque
 
 import numpy as np
 from keras.layers import Dense, Input, LSTM, concatenate
 from keras.models import Model
 
+from agents.abstract_agent import ABSDQNAgent
 
-class DQNAgent:
-    def __init__(self, action_size=4):
-        # self.state_size = state_size
-        self.action_size = action_size
-        self.memory = deque(maxlen=2000)
-        self.gamma = 0.95  # discount rate
-        self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.learning_rate = 0.001
-        self.model = self._build_model()
+
+def create_agent():
+    return NaiveFullStateModelAgent()
+
+
+class NaiveFullStateModelAgent(ABSDQNAgent):
+
+    # if you want to call parent init + add your __init__ do so:
+    # def __init__(self):
+    #     super().__init__()  # call the __init__ of parent
+    #     self.name = "naive_agent"
 
     def _build_model(self):
-        """
-        original model was:
-        model = Sequential()
-        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
-        model.add(Dense(self.action_size, activation='linear'))
-        model.compile(loss='mse',
-                      optimizer=Adam(lr=self.learning_rate))
-        return model
-
-        We change it in order to fit our problem:
-        - 4 chanel input (r_locs, i_locs, c_locs, ang)
-        - Added LSTM for remembering older locs states
-        -
-        :return:
-        """
-
         # Neural Net for Deep-Q learning Model
         hidden_size = 20
 
@@ -70,28 +52,6 @@ class DQNAgent:
         # from keras.utils import plot_model
         # plot_model(model, to_file='model.png')
         return model
-
-    def memorize(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
-
-    def act(self, state):
-        if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
-        act_values = self.model.predict(state)
-        return np.argmax(act_values[0])  # returns action
-
-    def replay(self, batch_size):
-        minibatch = random.sample(self.memory, batch_size)
-        for state, action, reward, next_state, done in minibatch:
-            target = reward
-            if not done:
-                target = reward + self.gamma * \
-                         np.amax(self.model.predict(next_state)[0])
-            target_f = self.model.predict(state)
-            target_f[0][action] = target
-            self.model.fit(state, np.array(target_f), epochs=1, verbose=0)
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
 
     def init_state(self):
         default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
