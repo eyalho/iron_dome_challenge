@@ -1,3 +1,7 @@
+### logging ###
+# [X] write to a single log file per training
+# [X] copy the files at running time into dst folder for making sure we ran the right code..
+
 #### Games Savers ####
 # [ ] score vs stp
 # [ ] count(shoot) vs stp

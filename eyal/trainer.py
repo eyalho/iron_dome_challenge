@@ -7,6 +7,7 @@ import importlib
 from savers.debug_logger import create_logger
 from savers.episode_saver import EpisodeSaver
 from envs.env_for_training import Init, Game_step, Save_draw
+from savers.python_files_saver import save_program_files
 from simulator.simulate_action import predict_scores
 
 
@@ -14,12 +15,12 @@ class Conf:
     NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
     MAX_DIFF_SIM_SCORE = 10
     MAX_ANG = 360
-    unique_id = str(uuid.uuid4())[:5]
-    results_folder = "results"
 
     def __init__(self):
         # set default values:
-        self.logger = create_logger(Conf.unique_id)
+        self.running_id = str(uuid.uuid4())[:5]
+        self.logger = create_logger(self.running_id)
+        self.results_folder = os.path.join("results_folder", self.running_id)
         self.simulate = False
         self.simulate_reward = False
         self.max_episodes = 50000
@@ -90,6 +91,8 @@ if __name__ == "__main__":
     agent = conf.agent
     debug = conf.logger.debug
 
+    save_program_files(os.path.join(conf.results_folder, "py"))
+
     debug(f"\nstart train of {conf.max_episodes} episodes, with batch size {conf.batch_size}")
     for e in range(conf.max_episodes):
         score = 0
@@ -136,8 +139,8 @@ if __name__ == "__main__":
                 if stp == 0:
                     epi_saver = EpisodeSaver()  # init an empty saver
                 directory1 = "plots"
-                directory2 = f"{agent.model.name}_{conf.unique_id}"
-                directory3 = f"e{e}"
+                directory2 = f"e{e}"
+                directory3 = f"screen_shots"
                 directory = os.path.join(conf.results_folder, directory1, directory2, directory3)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
@@ -158,6 +161,6 @@ if __name__ == "__main__":
             directory = os.path.join(conf.results_folder, directory1)
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            file_path = os.path.join(directory, f"{agent.model.name}_e{e}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.hdf5")
-            agent.model.save(file_path)
+            weights_file_path = os.path.join(directory, f"{agent.model.name}_e{e}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.hdf5")
+            agent.model.save(weights_file_path)
             debug("Saved model to disk")
