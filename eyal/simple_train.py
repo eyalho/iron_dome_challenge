@@ -3,11 +3,11 @@ import time
 import uuid
 
 import numpy as np
-from debug_logger import create_logger
-from env_for_training import Init, Draw, Game_step, Save_draw
+from savers.debug_logger import create_logger
+from envs.env_for_training import Init, Game_step, Save_draw
 # import simulate_Interceptor_V2 as sim_env
-from simple_agent import DQNAgent
-from smart_player import simulate_shoot_score
+from agents.simple_agent import DQNAgent
+from simulator.simulate_shoot import simulate_shoot_score
 
 logger = create_logger("simple train")
 debug = logger.debug
@@ -67,10 +67,11 @@ if __name__ == "__main__":
         state = [np.array([ang]), np.array([0]), np.array([normalized_t])]
         for stp in range(NUMBER_OF_STEPS_IN_GAME):
             stp_left = NUMBER_OF_STEPS_IN_GAME - stp
-            action = agent.act(state)
-            r_locs, i_locs, c_locs, ang, score = Game_step(action)
 
             sim_score = eval_score(action, ang, score, stp_left)
+
+            action = agent.act(state)
+            r_locs, i_locs, c_locs, ang, score = Game_step(action)
 
             normalized_ang = ang / MAX_ANG
             normalized_sim_score = sim_score / MAX_SIM_SCORE

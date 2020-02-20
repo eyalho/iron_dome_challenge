@@ -1,10 +1,15 @@
 # Deep Q-learning Agent
+"""
+We figured out that this the naive though is too hard for a short time training..
+So, next we tried to create as simple network as we could
+"""
 import random
 from collections import deque
 
 import numpy as np
 from keras.layers import Dense, Input, concatenate
 from keras.models import Model
+
 
 
 class DQNAgent:
@@ -59,3 +64,17 @@ class DQNAgent:
             self.model.fit(state, np.array(target_f), epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
+
+    def init_state(self):
+        state = [np.array([0]), np.array([0]), np.array([0])]
+        return state
+
+    def create_state(self, r_locs, i_locs, c_locs, ang, score, stp,
+                     predicted_shoot_score=None, predicted_wait_score=None):
+        from trainer import Conf
+        normalized_sim_score = (predicted_shoot_score - predicted_wait_score) / 10
+        normalized_t = stp / Conf.NUMBER_OF_STEPS_IN_GAME
+        normalized_ang = ang / Conf.MAX_ANG
+        next_state = [np.array([normalized_ang]), np.array([normalized_sim_score]), np.array([normalized_t])]
+        return next_state
+

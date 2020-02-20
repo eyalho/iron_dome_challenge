@@ -1,7 +1,7 @@
-import env_for_training as env
-import simulate_Interceptor_V2 as sim_env
-from debug_logger import create_logger
-from env_for_training import Init, Draw, Game_step
+from envs import env_for_training as env
+from simulator import simulate_Interceptor_V2 as sim_env
+from savers.debug_logger import create_logger
+from envs.env_for_training import Init, Draw, Game_step
 
 # import Interceptor_V2 as env
 # from Interceptor_V2 import Init, Draw, Game_step
@@ -40,11 +40,11 @@ def simulate_shoot_score(steps_to_sim):
         sim_env.Simulate(env.world, env.turret, env.rocket_list, env.interceptor_list, env.city_list,
                          env.explosion_list)
         # act
-        sim_env.Game_step(action_button)
+        sim_env.simulate_game_step(action_button)
 
         # peace steps until end of game
         for i in range(steps_to_sim):
-            _, _, _, _, score = sim_env.peace_step()
+            _, _, _, _, score = sim_env.simulate_peace_step()
         # last step : save score in end of peace game
         scores.append(score)
 

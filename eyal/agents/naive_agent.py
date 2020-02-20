@@ -1,4 +1,9 @@
-# Deep Q-learning Agent
+# naive
+"""
+Actually we were the naive not the agent.
+Firstly, we tried just give all state data "as is" to the agent and let it figure out by itself
+how to become the best player
+"""
 import random
 from collections import deque
 
@@ -18,42 +23,6 @@ class DQNAgent:
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
-
-    def _build_simple_model(self):
-        """
-                original model was:
-                model = Sequential()
-                model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-                model.add(Dense(24, activation='relu'))
-                model.add(Dense(self.action_size, activation='linear'))
-                model.compile(loss='mse',
-                              optimizer=Adam(lr=self.learning_rate))
-                return model
-
-                We change it in order to fit our problem:
-                - 4 chanel input (r_locs, i_locs, c_locs, ang)
-                - Added LSTM for remembering older locs states
-                -
-                :return:
-                """
-
-        hidden_size = 24
-        # Input Layer
-        ang_input_layer = Input(shape=(1,), name="angle")  # Turret angle (ang)
-        sim_score_input_layer = Input(shape=(1,), name="simulate_score")  # Turret angle (ang)
-        time_input_layer = Input(shape=(1,), name="time")  # time_t
-        layer = concatenate(
-            [ang_input_layer, sim_score_input_layer, time_input_layer])
-        layer = Dense(hidden_size, activation='relu')(layer)
-        layer = Dense(hidden_size, activation='relu')(layer)
-        output_layer = Dense(self.action_size, activation='linear')(layer)
-        model = Model(
-            inputs=[ang_input_layer, sim_score_input_layer, time_input_layer],
-            outputs=output_layer, name="model_simple")
-        model.compile(optimizer='adam', loss='mse')
-       # from keras.utils import plot_model
-       # plot_model(model, to_file=model.name)
-       # return model
 
     def _build_model(self):
         """
@@ -123,3 +92,27 @@ class DQNAgent:
             self.model.fit(state, np.array(target_f), epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
+
+    def init_state(self):
+        default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
+        # just for the case where there are no r_locs/i_locs
+        r_locs = default_val  # rocket
+        i_locs = default_val  # interceptor
+        c_locs = default_val  # city
+        ang = 0
+        normalized_t = 0
+        state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
+                 np.array([normalized_t])]
+        return state
+
+    def create_state(self, r_locs, i_locs, c_locs, ang, score, stp,
+                     predicted_shoot_score=None, predicted_wait_score=None):
+        from trainer import Conf
+        normalized_t = stp / Conf.NUMBER_OF_STEPS_IN_GAME
+        normalized_ang = ang / Conf.MAX_ANG
+        default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
+        r_locs = np.concatenate([default_val, r_locs])
+        i_locs = np.concatenate([default_val, i_locs])
+        next_state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([normalized_ang]),
+                      np.array([normalized_t])]
+        return next_state

@@ -3,10 +3,10 @@ import time
 
 import numpy as np
 # import simulate_Interceptor_V2 as sim_env
-from agent import DQNAgent
-from debug_logger import create_logger
-from env_for_training import Init, Draw, Game_step
-from smart_player import simulate_shoot_score
+from agents.naive_agent import DQNAgent
+from savers.debug_logger import create_logger
+from envs.env_for_training import Init, Draw, Game_step
+from simulator.simulate_shoot import simulate_shoot_score
 
 logger = create_logger("train")
 debug = logger.debug
@@ -77,16 +77,17 @@ if __name__ == "__main__":
             normalized_t = stp / NUMBER_OF_STEPS_IN_GAME
 
             action = agent.act(state)
-            r_locs, i_locs, c_locs, ang, new_score = Game_step(action)
+
+            r_locs, i_locs, c_locs, ang, score = Game_step(action)
+
             r_locs = np.concatenate([default_val, r_locs])
             i_locs = np.concatenate([default_val, i_locs])
             next_state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
                           np.array([normalized_t])]
             is_done = stp == NUMBER_OF_STEPS_IN_GAME
-            reward = new_score-score
-            score = new_score
-            # sim_score = eval_score(action, ang, score, stp_left)
-            agent.memorize(state, action, reward, next_state, is_done)
+            sim_score = eval_score(action, ang, score, stp_left)
+
+            agent.memorize(state, action, sim_score, next_state, is_done)
 
             state = next_state
 
