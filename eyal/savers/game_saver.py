@@ -8,14 +8,17 @@
 # [ ] histogram(simulated_score)
 # [ ] json all data vs stp
 # [ ] count(agent_listen to simulator) vs stp
+# [ ] count(success destroy missile) vs stp
+# [ ] count(non-success city hit) vs stp
 import json
 import os
 
 import matplotlib.pyplot as plt
 
 
-class GamesSaver:
-    def __init__(self, base_folder):
+class GameSaver:
+    def __init__(self, e, base_folder):
+        self.e = e
         self.steps_dict = dict()
         self.base_folder = base_folder
         self.plots_folder = os.path.join(self.base_folder, "plots")
@@ -33,41 +36,42 @@ class GamesSaver:
         self.count_shoots_list.append(self.shoots_counter)
         self.angles_list.append(ang)
 
-    def save_game(self, e):
-        self.save_scores_files(e)
-        self.save_shoots_counter_files(e)
-        self.save_angle_files(e)
+    def save_game(self):
+        self.save_scores_files()
+        self.save_shoots_counter_files()
+        self.save_angle_files()
 
-    def save_scores_files(self, e):
-        self.save_generic_plot(e, self.scores, "Score", "Score vs Step", "score.png", "score.txt")
+    def save_scores_files(self):
+        self.save_generic_plot(self.scores, "Score", "Score vs Step", "score.png", "score.txt")
 
-    def save_shoots_counter_files(self, e):
-        self.save_generic_plot(e, self.count_shoots_list, "count(shoots)", "count(Shoots) vs Step",
+    def save_shoots_counter_files(self):
+        self.save_generic_plot(self.count_shoots_list, "count(Shoots)", "count(Shoots) vs Step",
                                "count_shoots.png", "count_shoots.txt")
 
-    def save_angle_files(self, e):
-        self.save_generic_plot(e, self.angles_list, "Turret's Angle", "Turret Angle vs Step",
+    def save_angle_files(self):
+        self.save_generic_plot(self.angles_list, "Turret's Angle", "Turret Angle vs Step",
                                "turret_angel.png", "turret_angel.txt")
-        self.save_histogram_plot(e, self.angles_list, "Turret's Angle", "Turret's Angle histogram",
+        self.save_histogram_plot(self.angles_list, "Turret's Angle", "Turret's Angle histogram",
                                  "turret_angel_hist.png")
 
-    def save_generic_plot(self, e, data, y_name, title, score_fig_filename, score_data_filename):
-        score_fig_path = os.path.join(self.plots_folder, f"e{e}", score_fig_filename)
+    def save_generic_plot(self, data, y_name, title, fig_filename, data_filename):
+        save_dir = os.path.join(self.plots_folder, f"e{self.e}")
+        fig_path = os.path.join(save_dir, fig_filename)
+        data_path = os.path.join(save_dir, data_filename)
         plt.figure()
         plt.rcParams['axes.facecolor'] = 'white'
         plt.title(title)
         plt.plot(self.steps, data, 'bo')
-        plt.xlabel("steps")
+        plt.xlabel("Steps")
         plt.ylabel(y_name)
-        plt.savefig(score_fig_path)
+        plt.savefig(fig_path)
         plt.close
 
-        score_data_path = os.path.join(self.plots_folder, f"e{e}", score_data_filename)
-        with open(score_data_path, "w") as f:
+        with open(data_path, "w") as f:
             f.write(str(data))
 
-    def save_histogram_plot(self, e, data, data_name, title, score_fig_filename):
-        score_fig_path = os.path.join(self.plots_folder, f"e{e}", score_fig_filename)
+    def save_histogram_plot(self, data, data_name, title, score_fig_filename):
+        score_fig_path = os.path.join(self.plots_folder, f"e{self.e}", score_fig_filename)
         plt.figure()
         plt.title(title)
         plt.hist(data, density=1, bins=30)
@@ -78,8 +82,8 @@ class GamesSaver:
         plt.savefig(score_fig_path)
         plt.close
 
-    def save_screen_shot(self, e, stp, Save_draw_func):
-        screen_shots_dir = os.path.join(self.plots_folder, f"e{e}", "screen_shots")
+    def save_screen_shot(self, stp, Save_draw_func):
+        screen_shots_dir = os.path.join(self.plots_folder, f"e{self.e}", "screen_shots")
         if not os.path.exists(screen_shots_dir):
             os.makedirs(screen_shots_dir)
         file_path = os.path.join(screen_shots_dir, f"{stp}.png")
