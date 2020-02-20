@@ -5,6 +5,7 @@ import uuid
 import importlib
 
 from savers.debug_logger import create_logger
+from savers.episode_saver import EpisodeSaver
 from envs.env_for_training import Init, Game_step, Save_draw
 from simulator.simulate_action import predict_scores
 
@@ -131,13 +132,16 @@ if __name__ == "__main__":
 
             # Apply savers
             # once in _ episodes play on x_ fast forward
-            if stp % conf.game_step_save_period == 0 and e % conf.episodes_save_period == 0 and stp != 0:
+            if stp % conf.game_step_save_period == 0 and e % conf.episodes_save_period == 0 and e != 0:
+                if stp == 0:
+                    epi_saver = EpisodeSaver()  # init an empty saver
                 directory1 = "plots"
                 directory2 = f"{agent.model.name}_{conf.unique_id}"
                 directory3 = f"e{e}"
                 directory = os.path.join(conf.results_folder, directory1, directory2, directory3)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
+
                 file_path = os.path.join(directory, f"{stp}.png")
                 Save_draw(file_path)
 
