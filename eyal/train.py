@@ -14,8 +14,8 @@ debug = logger.debug
 load_weights = True
 episode_ofset = 0
 if load_weights:
-    Weights_Path = './models/model_full_state_e2800_2020_02_17-18_03_35.hdf5'
-    episode_ofset = 2800
+    Weights_Path = './models/model_full_state_e20550_2020_02_20-13_15_07.hdf5'
+    episode_ofset = 20550
 
 
 def eval_score(predicted_action, ang, score, steps_to_sim):
