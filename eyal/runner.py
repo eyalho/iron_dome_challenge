@@ -108,7 +108,7 @@ if __name__ == "__main__":
             if stp % conf.game_step_save_period == 0 and e % conf.episodes_save_period == 0:
                 if stp == 0:
                     game_saver = GameSaver(e, conf.results_folder)  # init an empty saver
-                game_saver.save_screen_shot(stp, Save_draw)
+                # game_saver.save_screen_shot(stp, Save_draw)
                 game_saver.update(r_locs, i_locs, c_locs, ang, score, stp, action)
 
         ################# END of game #################

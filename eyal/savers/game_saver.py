@@ -56,6 +56,8 @@ class GameSaver:
 
     def save_generic_plot(self, data, y_name, title, fig_filename, data_filename):
         save_dir = os.path.join(self.plots_folder, f"e{self.e}")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         fig_path = os.path.join(save_dir, fig_filename)
         data_path = os.path.join(save_dir, data_filename)
         plt.figure()
