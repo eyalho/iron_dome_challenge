@@ -147,9 +147,12 @@ if __name__ == "__main__":
 
         ################# END of game #################
         # TODO figure out about right way to use replay
-        agent.replay(conf.batch_size)
         debug(f'episode: {e + 1}/{conf.max_episodes}, score: {score}')
 
+        # train based on memory
+        agent.replay(conf.batch_size)
+
+        # Apply savers
         if e % conf.episodes_save_period == 0:
             directory1 = "models"
             directory = os.path.join(conf.results_folder, directory1)
