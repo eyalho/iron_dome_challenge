@@ -4,6 +4,8 @@ import uuid
 
 import importlib
 
+from keras.engine.saving import load_model
+
 from savers.debug_logger import create_logger
 from savers.episodes_saver import EpisodesSaver
 from envs.env_for_training import Init, Game_step, Save_draw
@@ -25,16 +27,22 @@ class Conf:
         self.episodes_save_period = 50
         self.game_step_save_period = 10
         self.batch_size = int(Conf.NUMBER_OF_STEPS_IN_GAME)
+        self.saved_model_path = None
         self.agent = None
 
         # parse CLI to update values
         self.parse_command_line()
+        if self.saved_model_path is not None:
+            self.model = load_model(self.saved_model_path)
+
+
 
     def parse_command_line(self):
         import argparse
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--agent_filename')
+        parser.add_argument('--saved_model_path')
         parser.add_argument('--max_episodes')
         parser.add_argument('--episodes_save_period')
         parser.add_argument('--game_step_save_period')
@@ -49,6 +57,13 @@ class Conf:
             self.agent = agent_module.create_agent()
         else:
             raise Exception("MUST CHOOSE AN AGENT")
+
+        if args.saved_model_path:
+            self.saved_model_path = args.saved_model_path
+        else:
+            raise Exception("MUST GIVE SAVED_MODEL_PATH\n"
+                            "Usage python trainer.py --agent_filename=<XXX> --saved_model_path=<YYY>")
+
 
         # run for at most max_episodes
         if args.max_episodes:
