@@ -40,11 +40,10 @@ class SimpleModelDQNAgent(ABSDQNAgent):
         state = [np.array([0]), np.array([0]), np.array([0])]
         return state
 
-    def create_state(self, r_locs, i_locs, c_locs, ang, score, stp):
-        from trainer import Conf
-        predicted_shoot_score, predicted_wait_score = predict_scores(stp)
-        normalized_sim_score = (predicted_shoot_score - predicted_wait_score) / Conf.MAX_DIFF_SIM_SCORE
-        normalized_t = stp / Conf.NUMBER_OF_STEPS_IN_GAME
-        normalized_ang = ang / Conf.MAX_ANG
+    def create_state(self, conf, r_locs, i_locs, c_locs, ang, score, stp):
+        predicted_shoot_score, predicted_wait_score = predict_scores(conf, stp)
+        normalized_sim_score = (predicted_shoot_score - predicted_wait_score) / conf.MAX_DIFF_SIM_SCORE
+        normalized_t = stp / conf.NUMBER_OF_STEPS_IN_GAME
+        normalized_ang = ang / conf.MAX_ANG
         next_state = [np.array([normalized_ang]), np.array([normalized_sim_score]), np.array([normalized_t])]
         return next_state

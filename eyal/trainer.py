@@ -1,14 +1,12 @@
+import importlib
 import os
 import time
 import uuid
-
-import importlib
 
 from keras.engine.saving import load_model
 
 from savers.debug_logger import create_logger
 from savers.episodes_saver import EpisodesSaver
-from envs.env_for_training import Init, Game_step, Save_draw
 from savers.game_saver import GameSaver
 from savers.python_files_saver import save_program_files
 
@@ -29,19 +27,19 @@ class Conf:
         self.batch_size = int(Conf.NUMBER_OF_STEPS_IN_GAME)
         self.saved_model_path = None
         self.agent = None
+        self.env = None
 
         # parse CLI to update values
         self.parse_command_line()
         if self.saved_model_path is not None:
             self.model = load_model(self.saved_model_path)
 
-
-
     def parse_command_line(self):
         import argparse
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--agent_filename')
+        parser.add_argument('--env_filename')
         parser.add_argument('--saved_model_path')
         parser.add_argument('--max_episodes')
         parser.add_argument('--episodes_save_period')
@@ -59,9 +57,15 @@ class Conf:
             raise Exception("MUST CHOOSE AN AGENT:\n"
                             "Usage python trainer.py --agent_filename=<XXX> (filename without .py)")
 
+        if args.env_filename:
+            env_module_name = "envs." + args.env_filename
+            self.env = importlib.import_module(env_module_name)
+        else:
+            raise Exception("MUST CHOOSE AN ENV:\n"
+                            "Usage python trainer.py --env_filename=<XXX> (filename without .py)")
+
         if args.saved_model_path:
             self.saved_model_path = args.saved_model_path
-
 
         # run for at most max_episodes
         if args.max_episodes:
@@ -92,7 +96,7 @@ if __name__ == "__main__":
     for e in range(conf.max_episodes):
         score = 0
         last_score = 0
-        Init()
+        conf.env.Init()
         state = agent.init_state()
         for stp in range(conf.NUMBER_OF_STEPS_IN_GAME):
             stp_left = conf.NUMBER_OF_STEPS_IN_GAME - stp
@@ -107,7 +111,7 @@ if __name__ == "__main__":
             # TODO MOVE ALL SIMULATE LOGIC TO AGENT FILE
             # if FLAG, simulate next step in order to understand if that was a good action
             # if conf.simulate:
-            #     predicted_shoot_score, predicted_wait_score = predict_scores(stp)
+            #     predicted_shoot_score, predicted_wait_score = predict_scores(conf, stp)
             #     diff_sim_score = predicted_shoot_score - predicted_wait_score
             #     # calc reward based on last_score + how much the action was good compared to other action
             #     if conf.simulate_reward:
@@ -117,10 +121,10 @@ if __name__ == "__main__":
             #             reward = last_score - (predicted_shoot_score - predicted_wait_score)
 
             # play next step
-            r_locs, i_locs, c_locs, ang, score = Game_step(action)
+            r_locs, i_locs, c_locs, ang, score = conf.env.Game_step(action)
 
             # reformat the state to model input
-            next_state = agent.create_state(r_locs, i_locs, c_locs, ang, score, stp)
+            next_state = agent.create_state(conf, r_locs, i_locs, c_locs, ang, score, stp)
 
             is_done = stp == conf.NUMBER_OF_STEPS_IN_GAME
 
@@ -133,9 +137,8 @@ if __name__ == "__main__":
             if stp % conf.game_step_save_period == 0 and e % conf.episodes_save_period == 0:
                 if stp == 0:
                     game_saver = GameSaver(e, conf.results_folder)  # init an empty saver
-                game_saver.save_screen_shot(stp, Save_draw)
+                game_saver.save_screen_shot(stp, conf.env.Save_draw)
                 game_saver.update(r_locs, i_locs, c_locs, ang, score, stp, action)
-
 
         ################# END of game #################
         debug(f'episode: {e + 1}/{conf.max_episodes}, score: {score}')
@@ -152,7 +155,6 @@ if __name__ == "__main__":
             game_saver.save_game()
             episodes_saver.update(game_saver)
             episodes_saver.save_episodes()
-
 
             weights_directory = os.path.join(conf.results_folder, "models")
             if not os.path.exists(weights_directory):

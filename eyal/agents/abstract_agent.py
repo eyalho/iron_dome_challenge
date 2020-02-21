@@ -36,7 +36,7 @@ class ABSDQNAgent(ABC):
         pass
 
     @abstractmethod
-    def create_state(self, r_locs, i_locs, c_locs, ang, score, stp):
+    def create_state(self, conf, r_locs, i_locs, c_locs, ang, score, stp):
         """ convert the default env.state to a valid input for the model agent"""
         pass
 

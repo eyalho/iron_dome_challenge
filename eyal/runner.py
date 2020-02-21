@@ -95,7 +95,7 @@ if __name__ == "__main__":
             r_locs, i_locs, c_locs, ang, score = Game_step(action)
 
             # reformat the state to model input
-            next_state = agent.create_state(r_locs, i_locs, c_locs, ang, score, stp)
+            next_state = agent.create_state(conf, r_locs, i_locs, c_locs, ang, score, stp)
 
             is_done = stp == conf.NUMBER_OF_STEPS_IN_GAME
 

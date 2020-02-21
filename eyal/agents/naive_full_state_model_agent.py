@@ -63,11 +63,10 @@ class NaiveFullStateModelAgent(ABSDQNAgent):
                  np.array([normalized_t])]
         return state
 
-    def create_state(self, r_locs, i_locs, c_locs, ang, score, stp,
+    def create_state(self, conf, r_locs, i_locs, c_locs, ang, score, stp,
                      predicted_shoot_score=None, predicted_wait_score=None):
-        from trainer import Conf
-        normalized_t = stp / Conf.NUMBER_OF_STEPS_IN_GAME
-        normalized_ang = ang / Conf.MAX_ANG
+        normalized_t = stp / conf.NUMBER_OF_STEPS_IN_GAME
+        normalized_ang = ang / conf.MAX_ANG
         default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
         r_locs = np.concatenate([default_val, r_locs])
         i_locs = np.concatenate([default_val, i_locs])
