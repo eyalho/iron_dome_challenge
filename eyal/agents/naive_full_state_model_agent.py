@@ -57,7 +57,7 @@ class NaiveFullStateModelAgent(ABSDQNAgent):
         # just for the case where there are no r_locs/i_locs
         r_locs = default_val  # rocket
         i_locs = default_val  # interceptor
-        c_locs = default_val  # city
+        c_locs = np.zeros(shape=(2, 2))
         ang = 0
         normalized_t = 0
         state = [np.array([r_locs]), np.array([i_locs]), np.array([c_locs]), np.array([ang]),
