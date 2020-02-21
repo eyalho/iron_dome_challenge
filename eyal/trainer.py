@@ -56,13 +56,11 @@ class Conf:
             agent_module = importlib.import_module(full_module_name)
             self.agent = agent_module.create_agent()
         else:
-            raise Exception("MUST CHOOSE AN AGENT")
+            raise Exception("MUST CHOOSE AN AGENT:\n"
+                            "Usage python trainer.py --agent_filename=<XXX> (filename without .py)")
 
         if args.saved_model_path:
             self.saved_model_path = args.saved_model_path
-        else:
-            raise Exception("MUST GIVE SAVED_MODEL_PATH\n"
-                            "Usage python trainer.py --agent_filename=<XXX> --saved_model_path=<YYY>")
 
 
         # run for at most max_episodes
