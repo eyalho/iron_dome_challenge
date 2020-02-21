@@ -20,6 +20,7 @@ class SimpleModelDQNAgent(ABSDQNAgent):
     def __init__(self):
         super().__init__()  # call the __init__ of parent
         self.name = "SimpleModelDQNAgent"
+        self.plot_model(str(self.name) + ".png")
 
     def _build_model(self):
         hidden_size = 24

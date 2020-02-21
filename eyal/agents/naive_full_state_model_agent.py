@@ -6,7 +6,7 @@ how to become the best player
 """
 
 import numpy as np
-from keras.layers import Dense, Input, LSTM, concatenate
+from keras.layers import Dense, Input, LSTM, concatenate, Flatten
 from keras.models import Model
 
 from agents.abstract_agent import ABSDQNAgent
@@ -21,6 +21,7 @@ class NaiveFullStateModelAgent(ABSDQNAgent):
     def __init__(self):
         super().__init__()  # call the __init__ of parent
         self.name = "NaiveFullStateModelAgent"
+        self.plot_model(str(self.name) + ".png")
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -31,14 +32,14 @@ class NaiveFullStateModelAgent(ABSDQNAgent):
                                    name="rockets")  # Location of each rocket np.array([[x,y],[x,y], ...])
         i_locs_input_layer = Input(shape=(None, 2),
                                    name="interceptor")  # Location of each interceptor np.array([[x,y],[x,y], ...])
-        c_locs_input_layer = Input(shape=(None, 2), name="cities")  # Location of each city np.array([[x,y],[x,y], ...])
+        c_locs_input_layer = Input(shape=(2, 2), name="cities")  # Location of each city np.array([[x,w],[x,w]])
         ang_input_layer = Input(shape=(1,), name="angle")  # Turret angle (ang)
-        features_input_layer = Input(shape=(1,), name="other_features")  # time_t
+        features_input_layer = Input(shape=(1,), name="time")  # time_t
 
         # Add RNN with some memory to previous states
         r_locs_lstm_layer = LSTM(hidden_size)(r_locs_input_layer)  # institution: find worst rocket
         i_locs_lstm_layer = LSTM(hidden_size)(i_locs_input_layer)  # institution: find match interceptor
-        c_locs_lstm_layer = LSTM(hidden_size)(c_locs_input_layer)  # institution: no real need for lstm
+        c_locs_lstm_layer = Flatten()(c_locs_input_layer)  # institution: no real need for lstm
 
         layer = concatenate(
             [r_locs_lstm_layer, i_locs_lstm_layer, c_locs_lstm_layer, ang_input_layer, features_input_layer])
@@ -51,6 +52,7 @@ class NaiveFullStateModelAgent(ABSDQNAgent):
         return model
 
     def init_state(self):
+        self.plot_model("plot_model.png")
         default_val = np.array([[-1, -1]])  # init always with invalid (x,y)
         # just for the case where there are no r_locs/i_locs
         r_locs = default_val  # rocket
