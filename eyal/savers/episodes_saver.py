@@ -21,7 +21,9 @@ class EpisodesSaver:
         self.final_scores = []
         self.count_shoots = []
         self.avg_angles = []
-        self.variance_angles = []
+        self.std_angles = []
+        self.avg_rewards = []
+        self.std_rewards = []
 
     def update(self, game_saver: GameSaver):
         # Episodes
@@ -34,9 +36,16 @@ class EpisodesSaver:
         self.count_shoots.append(count_shoot)
         # angles
         avg_angle = statistics.mean(game_saver.angles_list)
-        variance_angle = statistics.variance(game_saver.angles_list)
+        std_angle = statistics.stdev(game_saver.angles_list)
         self.avg_angles.append(avg_angle)
-        self.variance_angles.append(variance_angle)
+        self.std_angles.append(std_angle)
+        # reward
+        avg_reward = statistics.mean(game_saver.reward_list)
+        std_reward = statistics.stdev(game_saver.reward_list)
+        self.avg_rewards.append(avg_reward)
+        self.std_rewards.append(std_reward)
+
+
 
     def save_episodes(self):
         self.save_generic_plot(self.final_scores, "Final Score", "Final Score vs Episode",
@@ -45,8 +54,12 @@ class EpisodesSaver:
                                "e_count_shoots.png", "e_count_shoots.txt")
         self.save_generic_plot(self.avg_angles, "avg(Turret's Angle)", "avg(Turret's Angle) vs Episode",
                                "e_turret_angel.png", "e_turret_angel.txt")
-        self.save_avg_std_plots(self.avg_angles, self.variance_angles, "avg(Turret's Angle)",
-                                "avg(Turret's Angle) vs Episode","e_turret_angel2.png", "e_turret_angel2.txt")
+        self.save_avg_std_plots(self.avg_angles, self.std_angles, "avg(Turret's Angle)",
+                                "avg(Turret's Angle) vs Episode", "e_turret_angel2.png", "e_turret_angel2.txt")
+        self.save_generic_plot(self.avg_angles, "avg(Reward)", "avg(Reward) vs Episode",
+                               "e_reward.png", "e_reward.txt")
+        self.save_avg_std_plots(self.avg_angles, self.std_angles, "avg(Reward)",
+                                "avg(Reward) vs Episode", "e_reward_hist.png", "e_reward_hist.txt")
 
     def save_generic_plot(self, data, y_name, title, fig_filename, data_filename):
         save_dir = os.path.join(self.plots_folder, f"e{self.episodes[-1]}")

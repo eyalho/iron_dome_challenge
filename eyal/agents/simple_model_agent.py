@@ -9,7 +9,7 @@ from keras.layers import Dense, Input, concatenate
 from keras.models import Model
 
 from agents.abstract_agent import ABSDQNAgent
-from simulator.simulate_action import predict_scores
+from simulator.simulate_action import ActionsPredictor
 
 
 def create_agent():
@@ -17,6 +17,9 @@ def create_agent():
 
 
 class SimpleModelDQNAgent(ABSDQNAgent):
+    def __init__(self):
+        super().__init__()  # call the __init__ of parent
+        self.name = "SimpleModelDQNAgent"
 
     def _build_model(self):
         hidden_size = 24
@@ -40,8 +43,9 @@ class SimpleModelDQNAgent(ABSDQNAgent):
         state = [np.array([0]), np.array([0]), np.array([0])]
         return state
 
-    def create_state(self, conf, r_locs, i_locs, c_locs, ang, score, stp):
-        predicted_shoot_score, predicted_wait_score = predict_scores(conf, stp)
+    def create_state(self, conf, r_locs, i_locs, c_locs, ang, reward, stp):
+        ap = ActionsPredictor(conf, stp)
+        predicted_shoot_score, predicted_wait_score = ap.predict_scores()
         normalized_sim_score = (predicted_shoot_score - predicted_wait_score) / conf.MAX_DIFF_SIM_SCORE
         normalized_t = stp / conf.NUMBER_OF_STEPS_IN_GAME
         normalized_ang = ang / conf.MAX_ANG

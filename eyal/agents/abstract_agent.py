@@ -24,6 +24,8 @@ class ABSDQNAgent(ABC):
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
+        self.simulate_reward = False
+        self.name = ""
 
     @abstractmethod
     def _build_model(self):

@@ -18,10 +18,9 @@ def create_agent():
 
 class NaiveFullStateModelAgent(ABSDQNAgent):
 
-    # if you want to call parent init + add your __init__ do so:
-    # def __init__(self):
-    #     super().__init__()  # call the __init__ of parent
-    #     self.name = "naive_agent"
+    def __init__(self):
+        super().__init__()  # call the __init__ of parent
+        self.name = "NaiveFullStateModelAgent"
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -63,7 +62,7 @@ class NaiveFullStateModelAgent(ABSDQNAgent):
                  np.array([normalized_t])]
         return state
 
-    def create_state(self, conf, r_locs, i_locs, c_locs, ang, score, stp,
+    def create_state(self, conf, r_locs, i_locs, c_locs, ang, reward, stp,
                      predicted_shoot_score=None, predicted_wait_score=None):
         normalized_t = stp / conf.NUMBER_OF_STEPS_IN_GAME
         normalized_ang = ang / conf.MAX_ANG

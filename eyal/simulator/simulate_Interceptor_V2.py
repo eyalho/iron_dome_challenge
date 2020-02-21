@@ -7,8 +7,10 @@ will deepcopy the game state into the new s_* globals
 
 """
 import copy
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 class SWorld():
     def __init__(self, world):
@@ -24,6 +26,7 @@ class SWorld():
         self.g = copy.deepcopy(world.g)  # 9.8 # Gravity [m/sec**2]
         self.fric = copy.deepcopy(world.fric)  # 5e-7 # Air friction [Units of Science]
         self.rocket_prob = copy.deepcopy(world.rocket_prob)  # 1 # expected rockets per sec
+
 
 class STurret():
     def __init__(self, turrent):
@@ -64,6 +67,7 @@ class Interceptor():
         self.vy = s_turret.v0 * np.cos(np.deg2rad(s_turret.ang))
         s_world.score = s_world.score + s_world.reward_fire
         SInterceptor(self)
+
 
 class SInterceptor():
     def __init__(self, interceptor):
@@ -125,8 +129,8 @@ class Explosion():
         self.y = y
         self.size = 500
         self.duration = 0.4  # [sec]
-        self.verts1 = (np.random.rand(30 ,2)- 0.5) * self.size
-        self.verts2 = (np.random.rand(20 ,2)- 0.5) * self.size / 2
+        self.verts1 = (np.random.rand(30, 2) - 0.5) * self.size
+        self.verts2 = (np.random.rand(20, 2) - 0.5) * self.size / 2
         self.verts1[:, 0] = self.verts1[:, 0] + x
         self.verts1[:, 1] = self.verts1[:, 1] + y
         self.verts2[:, 0] = self.verts2[:, 0] + x
@@ -180,7 +184,7 @@ def Check_ground_hit():
             s_rocket_list.remove(r)
 
 
-def Draw():
+def SaveDraw(filepath):
     plt.cla()
     plt.rcParams['axes.facecolor'] = 'black'
     for r in s_rocket_list:
@@ -206,8 +210,9 @@ def Draw():
     plt.axes().set_aspect('equal')
     plt.axis([-s_world.width / 2, s_world.width / 2, 0, s_world.height])
     plt.title('Score: ' + str(s_world.score))
-    plt.draw()
-    plt.pause(0.001)
+    plt.savefig(filepath)
+    # plt.draw()
+    # plt.pause(0.001)
 
 
 def Simulate(world, turret, rocket_list, interceptor_list, city_list, explosion_list):
@@ -233,7 +238,7 @@ def Simulate(world, turret, rocket_list, interceptor_list, city_list, explosion_
     s_explosion_list = [SExplosion(explosion) for explosion in explosion_list]
 
 
-def simulate_game_step(action_button):
+def simulate_game_step(action_button, filename=None):
     """
     simulate a step where:
      - no new rockets
@@ -269,15 +274,19 @@ def simulate_game_step(action_button):
     for ind in range(len(s_city_list)):
         c_locs[ind, :] = [s_city_list[ind].x, s_city_list[ind].width]
 
+    if filename is not None:
+        print(f"save {filename}")
+        SaveDraw(filename)
+
     return r_locs, i_locs, c_locs, s_turret.ang, s_world.score
 
 
-def simulate_peace_step():
+def simulate_peace_step(filename=None):
     """
     simulate a step where:
      - no new rockets
      - no new interceptors
     :return:
     """
-    PEACE=1
-    return simulate_game_step(PEACE)
+    PEACE = 1
+    return simulate_game_step(PEACE, filename)

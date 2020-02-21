@@ -4,8 +4,8 @@
 # [X] count(shoot) vs stp
 # [X] angle vs stp
 # [X] histogram(angle)
-# [ ] simulated_score vs stp
-# [ ] histogram(simulated_score)
+# [X] reward vs stp
+# [X] histogram(reward)
 # [ ] json all data vs stp
 # [ ] count(agent_listen to simulator) vs stp
 # [ ] count(success destroy missile) vs stp
@@ -27,19 +27,22 @@ class GameSaver:
         self.shoots_counter = 0
         self.count_shoots_list = []
         self.angles_list = []
+        self.reward_list = []
 
-    def update(self, r_locs, i_locs, c_locs, ang, score, stp, action):
+    def update(self, r_locs, i_locs, c_locs, ang, score, stp, action, reward):
         self.steps.append(stp)
         self.scores.append(score)
         if action == 3:
             self.shoots_counter += 1
         self.count_shoots_list.append(self.shoots_counter)
         self.angles_list.append(ang)
+        self.reward_list.append(reward)
 
     def save_game(self):
         self.save_scores_files()
         self.save_shoots_counter_files()
         self.save_angle_files()
+        self.save_reward()
 
     def save_scores_files(self):
         self.save_generic_plot(self.scores, "Score", "Score vs Step", "score.png", "score.txt")
@@ -52,7 +55,13 @@ class GameSaver:
         self.save_generic_plot(self.angles_list, "Turret's Angle", "Turret Angle vs Step",
                                "turret_angel.png", "turret_angel.txt")
         self.save_histogram_plot(self.angles_list, "Turret's Angle", "Turret's Angle histogram",
-                                 "turret_angel_hist.png")
+                                 "turret_angel_hist.png", [-90, 90, 0, 1], 30)
+
+    def save_reward(self):
+        self.save_generic_plot(self.reward_list, "Reward", "Reward vs Step",
+                               "reward.png", "reward.txt")
+        self.save_histogram_plot(self.reward_list, "Reward", "Reward histogram",
+                                 "reward_hist.png", [-10, 10, 0, 1], 20)
 
     def save_generic_plot(self, data, y_name, title, fig_filename, data_filename):
         save_dir = os.path.join(self.plots_folder, f"e{self.e}")
@@ -72,15 +81,15 @@ class GameSaver:
         with open(data_path, "w") as f:
             f.write(str(data))
 
-    def save_histogram_plot(self, data, data_name, title, score_fig_filename):
+    def save_histogram_plot(self, data, data_name, title, score_fig_filename, a_xis, bins):
         score_fig_path = os.path.join(self.plots_folder, f"e{self.e}", score_fig_filename)
         plt.figure()
         plt.title(title)
         plt.hist(data, density=1, bins=30)
-        plt.axis([-90, 90, 0, 1])
+        plt.axis(a_xis)
         # axis([xmin,xmax,ymin,ymax])
-        plt.xlabel("Distribution")
-        plt.ylabel(data_name)
+        plt.ylabel("Distribution")
+        plt.xlabel(data_name)
         plt.savefig(score_fig_path)
         plt.close
 

@@ -9,6 +9,7 @@ from savers.debug_logger import create_logger
 from savers.episodes_saver import EpisodesSaver
 from savers.game_saver import GameSaver
 from savers.python_files_saver import save_program_files
+from simulator.simulate_action import ActionsPredictor
 
 
 class Conf:
@@ -87,15 +88,28 @@ if __name__ == "__main__":
 
     for e in range(conf.max_episodes):
         Init()
+        score = 0
+        last_score = 0
         state = agent.init_state()
         for stp in range(conf.NUMBER_OF_STEPS_IN_GAME):
 
+            # calc reward
+            if agent.simulate_reward is True:
+                actions_predictor = ActionsPredictor(conf, stp)
+                predicted_shoot_score, predicted_wait_score = actions_predictor.predict_scores()
+                reward = predicted_shoot_score - predicted_wait_score
+
             action = agent.act(state)
 
+            last_score = score
             r_locs, i_locs, c_locs, ang, score = Game_step(action)
 
+            # calc reward
+            if agent.simulate_reward is False:
+                reward = last_score - score
+
             # reformat the state to model input
-            next_state = agent.create_state(conf, r_locs, i_locs, c_locs, ang, score, stp)
+            next_state = agent.create_state(conf, r_locs, i_locs, c_locs, ang, reward, stp)
 
             is_done = stp == conf.NUMBER_OF_STEPS_IN_GAME
 
@@ -109,7 +123,7 @@ if __name__ == "__main__":
                 if stp == 0:
                     game_saver = GameSaver(e, conf.results_folder)  # init an empty saver
                 # game_saver.save_screen_shot(stp, Save_draw)
-                game_saver.update(r_locs, i_locs, c_locs, ang, score, stp, action)
+                game_saver.update(r_locs, i_locs, c_locs, ang, score, stp, action, reward)
 
         ################# END of game #################
         debug(f'episode: {e + 1}/{conf.max_episodes}, score: {score}')
