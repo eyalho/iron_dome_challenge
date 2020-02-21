@@ -15,7 +15,7 @@ from simulator.simulate_action import ActionsPredictor
 class Conf:
     NUMBER_OF_STEPS_IN_GAME = 1000  # total frames in a game
     MAX_DIFF_SIM_SCORE = 10
-    MAX_ANG = 360
+    MAX_ANG = 90
 
     def __init__(self):
         # set default values:
@@ -100,6 +100,8 @@ if __name__ == "__main__":
 
     save_program_files(os.path.join(conf.results_folder, "py"))
 
+    debug(f"{agent.name}")
+    debug(f"{conf.__dict__}")
     debug(f"\nstart train of {conf.max_episodes} episodes, with batch size {conf.batch_size}")
     for e in range(conf.max_episodes):
         conf.env.Init()
