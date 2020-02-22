@@ -36,7 +36,7 @@ class CnnAgent(ABSDQNAgent):
         self.simulate_reward = False
         self.name = "CNN_agent"
 
-    @abstractmethod
+
     def _build_model(self):
         """ return a Neural Net for Deep-Q learning Model"""
         # Neural Net for Deep-Q learning Model on image
@@ -58,13 +58,13 @@ class CnnAgent(ABSDQNAgent):
         model.summary()
         return model
 
-    @abstractmethod
+
     def init_state(self):
         """ return a valid state for stp=0"""
         self.state = [np.zeros([1, self.py, self.px, 3 * self.frame_history]), np.array([self.ang])]
         return self.state
 
-    @abstractmethod
+
     def create_state(self, conf, r_locs, i_locs, c_locs, ang, score, stp):
         """ convert the default env.state to a valid input for the model agent"""
 
