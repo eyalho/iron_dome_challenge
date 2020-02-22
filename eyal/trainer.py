@@ -134,7 +134,7 @@ if __name__ == "__main__":
                 if action != conf.SHOOT:
                     reward = -reward
             else:
-                reward = last_score - score
+                reward = score - last_score
 
             # reformat the state to model input
             next_state = agent.create_state(conf, r_locs, i_locs, c_locs, ang, reward, stp)
