@@ -61,7 +61,7 @@ class CnnAgent(ABSDQNAgent):
 
     def init_state(self):
         """ return a valid state for stp=0"""
-        self.state = [np.zeros([1, self.py, self.px, 3 * self.frame_history]), np.array([self.ang])]
+        self.state = [np.zeros([1, self.py, self.px, 3 * self.frame_history]), np.array([0])]
         return self.state
 
 
