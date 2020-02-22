@@ -14,8 +14,12 @@ from keras.layers import Input, Dense, Conv2D, concatenate, Flatten
 from keras.optimizers import Adam
 from keras.models import Model
 
+from agents.abstract_agent import ABSDQNAgent
 
-class ABSDQNAgent(ABC):
+def create_agent():
+    return CnnAgent()
+
+class CnnAgent(ABSDQNAgent):
     def __init__(self, actions_size=4):
         # self.state_size = state_size
         self.action_size = actions_size
