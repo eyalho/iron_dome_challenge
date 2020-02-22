@@ -27,7 +27,7 @@ class Conf:
         self.game_step_save_period = 10
         self.MAX_STEP_FOR_SIMULATE = 150
         self.SHOOT = 3
-        self.render = True
+        self.stop_render = False
         self.batch_size = int(Conf.NUMBER_OF_STEPS_IN_GAME)
         self.saved_model_path = None
         self.agent = None
@@ -49,7 +49,7 @@ class Conf:
         parser.add_argument('--episodes_save_period')
         parser.add_argument('--game_step_save_period')
         parser.add_argument('--batch_size')
-        parser.add_argument('--render')
+        parser.add_argument('--stop_render')
         args = parser.parse_args()
 
         # play at most max_episodes
@@ -87,8 +87,8 @@ class Conf:
         if args.batch_size:
             self.batch_size = int(args.batch_size)
 
-        if args.render:
-            self.render = True
+        if args.stop_render:
+            self.stop_render = True
 
 
 if __name__ == "__main__":
@@ -152,7 +152,7 @@ if __name__ == "__main__":
                     game_saver = GameSaver(e, conf.results_folder)  # init an empty saver
                 game_saver.update(r_locs, i_locs, c_locs, ang, score, stp, action, reward)
                 # screenshots take longer, so save once in a 10 saver
-                if conf.render:
+                if not conf.stop_render:
                     if stp % (conf.episodes_save_period * 10) == 0 and stp % (conf.game_step_save_period * 10) == 0:
                         game_saver.save_screen_shot(stp, conf.env.Save_draw)
 
