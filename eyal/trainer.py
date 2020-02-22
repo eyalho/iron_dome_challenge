@@ -98,7 +98,7 @@ if __name__ == "__main__":
     agent = conf.agent
     debug = conf.logger.debug
 
-    save_program_files(os.path.join(conf.results_folder, "py"))
+    save_program_files(debug, os.path.join(conf.results_folder, "py"))
 
     debug(f"{agent.name}")
     debug(f"{conf.__dict__}")
