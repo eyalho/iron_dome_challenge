@@ -15,5 +15,6 @@ def save_program_files(debug, dst_folder):
     dst_folder = os.path.join(src, dst_folder)
     if not os.path.exists(dst_folder):
         os.makedirs(dst_folder)
-    debug("copy {src} to {dst}")
+    print(f"copy {src} to {dst_folder}")
+    debug(f"copy {src} to {dst_folder}")
     copy_py_files(src, dst_folder)
