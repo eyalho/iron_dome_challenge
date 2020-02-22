@@ -134,14 +134,14 @@ if __name__ == "__main__":
                 if action != conf.SHOOT:
                     reward = -reward
             else:
-                reward = last_score - score
+                reward = score - last_score
 
             # reformat the state to model input
             next_state = agent.create_state(conf, r_locs, i_locs, c_locs, ang, reward, stp)
 
             is_done = stp == conf.NUMBER_OF_STEPS_IN_GAME
 
-            agent.memorize(state, action, score, next_state, is_done)
+            agent.memorize(state, action, reward, next_state, is_done)
             state = next_state
 
             # load games saver with data

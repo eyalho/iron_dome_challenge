@@ -36,7 +36,7 @@ class IronDomeEnv(gym.Env):
         self.dy = 1000
         self.px = 84
         self.py = 42
-        self.frame_history = 5
+        self.frame_history = 10
         self.r_i_histogram_2D_last_frames = np.zeros([1, self.py, self.px, 3*self.frame_history])
         # Example for using image as input:
         if state_type == 'flattened_locs': # flattened_sky_patches', '2D_histogram', 'flattened_locs', 'flattened_locs_and_vels
@@ -203,7 +203,8 @@ class IronDomeEnv(gym.Env):
         return next_state
 
     def render(self, mode='human', close=False):
-        #Draw()
+        Draw()
+        """
         if self.state_type=='histogram_2D':
             plt.cla
             image = self.state[0][0,:,:,0:3]
@@ -211,4 +212,4 @@ class IronDomeEnv(gym.Env):
             plt.imshow(image)
             plt.draw()
             plt.pause(0.001)
-
+        """

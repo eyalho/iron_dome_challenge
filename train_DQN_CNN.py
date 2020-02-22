@@ -8,25 +8,25 @@ from DQN_CNN_agent import DQN_CNN_agent
 logger = create_logger("train")
 debug = logger.debug
 
-load_weights = False
+load_weights = True
 episode_ofset = 0
 if load_weights:
-    Weights_Path = './models/DQN CNN 42x84x12_e3400_2020_02_20-20_07_33.hdf5'
-    episode_ofset = 0
+    weights_path = './models/DQN CNN 42x84x12_e1150_2020_02_22-07_06_26.hdf5'
+    episode_ofset = 1150
 
 
 # run configurations
 episodes = 50000
-model_name = 'DQN CNN 42x84x12'
-render = False
-batch_size = 100
+model_name = 'DQN CNN 42x84x30'
+render = True
+batch_size = 32
 
 # env and agent initialization
 env = IronDomeEnv(state_type='histogram_2D')
 agent = DQN_CNN_agent(action_size=4, env=env)
 if load_weights:
-  agent.model.load_weights(weights_Path)
-  agent.epsilon = self.eepsilon_min
+  agent.model.load_weights(weights_path)
+  agent.epsilon = agent.epsilon_min
 scores = []
 
 
@@ -41,7 +41,7 @@ for e in range(episodes-episode_ofset):
         # turn this on if you want to render
         if render:
             # once in 50 episodes play on x20 fast forward
-            if e% 50 == 0 and time_t % 1 == 0:
+            if e% 100 == 0 and time_t % 5 == 0:
                 env.render()
 
         # Decide action

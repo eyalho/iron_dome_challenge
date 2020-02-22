@@ -66,7 +66,7 @@ class World():
     reward_intercept = 4
     g = 9.8 # Gravity [m/sec**2]
     fric = 5e-7 # Air friction [Units of Science]
-    rocket_prob = 1 # expected rockets per sec
+    rocket_prob = 0.05 # expected rockets per sec
 
 
 class Turret():
