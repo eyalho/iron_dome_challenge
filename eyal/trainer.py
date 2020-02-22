@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
             is_done = stp == conf.NUMBER_OF_STEPS_IN_GAME
 
-            agent.memorize(state, action, score, next_state, is_done)
+            agent.memorize(state, action, reward, next_state, is_done)
             state = next_state
 
             # load games saver with data
