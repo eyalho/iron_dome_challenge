@@ -20,8 +20,8 @@ for stp in range(1000):
             break
         else:
             action = 1
-            t1 = time.time()
-        if t1 - t0 > 0.1:
+        t1 = time.time()
+        if t1 - t0 > 0.2:
             break
 
     r_locs, i_locs, c_locs, ang, score = Game_step(action)

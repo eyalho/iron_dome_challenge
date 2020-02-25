@@ -25,7 +25,7 @@ class Conf:
         self.max_episodes = 50000
         self.episodes_save_period = 10
         self.game_step_save_period = 10
-        self.MAX_STEP_FOR_SIMULATE = 150
+
         self.SHOOT = 3
         self.stop_render = False
         self.batch_size = int(Conf.NUMBER_OF_STEPS_IN_GAME)
