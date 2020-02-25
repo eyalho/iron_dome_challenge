@@ -62,7 +62,7 @@ class CnnAgent(ABSDQNAgent):
 
     def init_state(self):
         """ return a valid state for stp=0"""
-        self.state = [np.zeros([1, self.py, self.px, 3 * self.frame_history]), np.array([0])]
+        self.state = [np.zeros([1, self.py, self.px, self.frame_history]), np.array([0])]
         return self.state
 
 
@@ -109,7 +109,7 @@ class CnnAgent(ABSDQNAgent):
         r_i_histogram_2D = np.add(r_histogram_2D, 3*i_histogram_2D)
         r_i_c_histogram_2D = np.add(r_i_histogram_2D,5*c_histogram_2D)/6
         self.state[0] = np.concatenate((r_i_c_histogram_2D, self.state[0]),
-                                                           axis=3)[:, :, :, 0:( self.frame_history)]
+                                                           axis=3)[:, :, :, 0:(self.frame_history)]
         self.state[1] = np.array([ang])
 
         return self.state
