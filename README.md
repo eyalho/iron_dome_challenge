@@ -14,7 +14,12 @@ The goal of the game: Getting highest score in 100 games  each running for
 - 3: Fire
 
 
+# solution
+In order to train (and automatic save metrics) run:
+python trainer.py --env_filename=<ENV> −-agent_filename=<AGENT>
+  
+If you want to train a new agent, just create new file in agents and inheritance the AbstractAgent.
+
 
 Referenced articles:
-
 [Reinforcement Learning (CartPole game with Keras)](https://keon.github.io/deep-q-learning) - notice work until python 3.7.4
